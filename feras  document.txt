@@ -1,0 +1,102 @@
+1- make kitchen table (kitchens) and all crud ( create , update , delete )
+2- make edit on orders views and database add fields like (info in transactions table ) changed according on order status in kitchen
+3- make tabel (order_status) to control orders status and kitchen and transaction
+4- make main accounts tabel (main_accounts) for new tree accounts by Recursive function (programming), a function which references itself. General recursive function, a computable partial function from natural numbers to natural numbers. Primitive recursive function, a function which can be computed with loops of bounded length.
+with laravel componnets for accounts and account  <x-accounts :accounts="$account_types" /> 
+
+
+    {{$account->name_ar}}   
+    @if(!empty($account->account_number))({{$account->account_number}}) @endif
+    
+    @format_currency(-1 * $account->totalBalance)
+      
+     @if($account->status == 'active') 
+         <span style="margin-right: 5px;"><i class="fas fa-check text-success" title="@lang( 'accounting::lang.active' )"></i></span>
+     @elseif($account->status == 'inactive') 
+         <span style="margin-right: 5px;"><i class="fas fa-times text-danger" title="@lang( 'lang_v1.inactive' )" style="font-size: 14px;"></i></span>
+     @endif
+     <span class="tree-actions" style="margin-right: 5px;">
+         <a class="btn btn-xs btn-default text-success ledger-link" style="margin-right: 5px;"
+             title="@lang( 'accounting::lang.ledger' )"
+             href="{{action([\Modules\Accounting\Http\Controllers\CoaController::class, 'ledger'], $account->id)}}">
+             <i class="fas fa-file-alt"></i>
+         </a>
+         <a class="btn-modal btn-xs btn-default text-primary" style="margin-right: 5px;" title="@lang('messages.edit')"
+             href="{{action([\Modules\Accounting\Http\Controllers\CoaController::class, 'edit'], $account->id)}}" 
+             data-href="{{action([\Modules\Accounting\Http\Controllers\CoaController::class, 'edit'], $account->id)}}" 
+             data-container="#create_account_modal">
+             <i class="fas fa-edit"></i>
+         </a>
+         <a class="activate-deactivate-btn text-warning  btn-xs btn-default" style="margin-right: 5px;"
+             title="@if($account->status=='active') @lang('messages.deactivate') @else 
+             @lang('messages.activate') @endif"
+             href="{{action([\Modules\Accounting\Http\Controllers\CoaController::class, 'activateDeactivate'], $account->id)}}">
+             <i class="fas fa-power-off"></i>
+         </a>
+         @if ($account->isParent->count() == 0 && $account->balance == null && $account->sumBalanceOfChildren() == null)
+             <a href="#" class="delete-delete-btn text-danger btn-xs btn-default" style="margin-right: 5px;"
+                 title="@lang('messages.delete')"  
+                     data-href="{{action([\Modules\Accounting\Http\Controllers\CoaController::class, 'destroy'], [$account->id])}}">
+                 <i class="fas fa-trash"></i>
+             </a>
+         @endif
+     </span>
+ 
+     <ul>
+        <x-accounts :accounts="$account->children" />
+     </ul>
+
+
+    // get all parent account and get root 
+    public static function tree()
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $allaccounts = MainAccount::where('business_id',$business_id)
+        ->withCount(['accountingAccountsTransactions as balance' => function($query) {
+            $query->select(DB::raw("SUM(IF(type='credit', amount, -1 * amount)) AS balance"));
+        }
+        ])->get();
+        $rootAccounts = $allaccounts->whereNull('parent_id');
+        self::formatTree($rootAccounts, $allaccounts);
+        return $rootAccounts;
+    }
+
+    // loop through root of childern
+    private static function formatTree($accounts, $allaccounts)
+    {
+        foreach ($accounts as $account) {
+            $account->children = $allaccounts->where('parent_id', $account->id)->values();
+            $account->totalBalance = $account->balance;
+            if ($account->children->isNotEmpty()) {
+                self::calculateTotalBalance($account->children, $allaccounts);
+                self::formatTree($account->children, $allaccounts);
+                $account->totalBalance += $account->children->sum('totalBalance');
+            }
+        }
+    }
+
+    // Initialize totalBalance with the current account's balance
+    private static function calculateTotalBalance($accounts, $allaccounts)
+    {
+        foreach ($accounts as $account) {
+            $account->totalBalance = $account->balance; 
+
+            if ($account->children) {
+                self::calculateTotalBalance($account->children, $allaccounts);
+                $account->totalBalance += $account->children->sum('totalBalance');
+            }
+        }
+    }
+    // to check if is child
+   public function isChild(): bool
+   {
+        return $this->parent_id !== null;
+   }
+
+   // reports
+
+   5- finished  journal entry with note and calculate balance
+   6- finished reports ledger 
+   7 - finished trial balance
+
+   8- report finished  totla balance for debit and credit
