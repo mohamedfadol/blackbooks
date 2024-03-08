@@ -159,13 +159,13 @@ class AccountingController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $q = request()->input('q', '');
             $accounts = MainAccount::forDropdown($business_id, true, $q);
-
+            
             $accounts_array = [];
             foreach ($accounts as $account) {
                 $accounts_array[] = [
                     'id' => $account->id,
-                    'text' => $account->name_ar.' - <small class="text-muted">'.$account->name_en.'</small>',
-                    'html' => $account->name_en.' - <small class="text-muted">'.$account->name_ar.'</small>',
+                    'text' => $account->name_ar.' - <small class="text-muted">'.$account->name_en .'</small>' . ' - <small class="text-muted">'.$account->account_number.'</small>' ,
+                    'html' => $account->name_en.' - <small class="text-muted">'.$account->name_ar.'</small>'.'</small>' . ' - <small class="text-muted">'.$account->account_number.'</small>',
                 ];
             }
 

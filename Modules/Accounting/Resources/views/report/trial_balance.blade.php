@@ -6,6 +6,9 @@
         .hidden {
     display: none !important;
 }
+.text-black {
+    color: #050505;
+}
     </style>
 @endsection
 @section('content')
@@ -35,7 +38,7 @@
 
     
 
-    <div class="col-md-8 col-md-offset-2">
+    <div class="col-md-12 col-md-offset-0">
         
         <div class="box box-warning">
             <div class="box-header with-border text-center">
@@ -68,25 +71,31 @@
                         @php
                             $total_debit += $account->debit_balance;
                             $total_credit += $account->credit_balance;
-                           $final_balance1 += ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
-                           $final_balance2 += ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                            $final_balance1 += ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
+                            $final_balance2 += ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                            if ($account->parent_id === null || $account->child_accounts()->count() > 0){
+                                $account->calculateSum($account);
+                            }
                         @endphp
-
-                            <tr class="{{ $account->parent_id != null ? "text-primary" : "text-success" }}">
-                                <td> <a  class="{{ $account->parent_id != null ? "text-primary" : "text-success" }}" href="{{ route("accounting.ledger",$account->id) }}"> {{$account->account_number}} - {{$account->name_ar ?? $account->name_en}} </a> </td>
-                                <td>
+                                 
+                            <tr class=  {{ $account->child_accounts->count() > 0 ? "text-success" : "text-black" }} >
+                                <td> <a  class= {{ $account->child_accounts()->count() > 0 ? "text-success" : "text-black" }} href="{{ route("accounting.ledger",$account->id) }}"> {{$account->account_number}} - {{$account->name_ar ?? $account->name_en}}  </a> </td>
+                                <td> 
                                     @if($account->debit_balance != 0)
                                         {{number_format($account->debit_balance,3,".","")}}
                                     @endif    
                                 </td>
-                                <td>
+                                <td> 
                                     @if($account->credit_balance != 0)
                                         {{number_format($account->credit_balance,3,".","")}}
                                     @endif
                                 </td>
                                 @php
+                                
                                     $db1 = ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
                                     $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                                    // $db1 = ($account->debit_balance - $account->credit_balance < 0) ? $account->child_sum_balance : ($account->debit_balance - $account->credit_balance );
+                                    // $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : $account->child_sum_balance;
                                 @endphp
                                 <td>{{number_format($db1,3,".","") }}</td>
                                 <td>{{number_format($db2,3,".","") }}</td>

@@ -19,7 +19,7 @@ class MainAccount extends Model
     public static function forDropdownAcc($business_id, $prepend_none, $closed = false, $show_balance = false)
     {
         $query = MainAccount::where('business_id', $business_id)->whereNotNull('parent_id')
-                                ->whereDoesntHave('child_accounts');
+                                ->whereHas('child_accounts');
 
         $permitted_locations = auth()->user()->permitted_locations();
         $account_ids = [];
@@ -130,7 +130,25 @@ class MainAccount extends Model
         return $this->hasMany(\Modules\Accounting\Entities\AccountingAccountsTransaction::class, 'accounting_account_id');
     }
 
-
+    // Recursive function to calculate sums
+    public function calculateSum(&$account) {
+        // Initialize sums
+        $creditSum = $account->accountingAccountsTransactions->where('type', 'credit')->sum('amount');
+        $debitSum = $account->accountingAccountsTransactions->where('type', 'debit')->sum('amount');
+    
+        // Calculate sums for child accounts
+        foreach ($account->child_accounts as $child) {
+            [$childCredit, $childDebit] = self::calculateSum($child);
+            $creditSum += $childCredit;
+            $debitSum += $childDebit;
+        }
+    
+        // Optional: store sums in the account object if you want to use them later
+        $account->credit_balance = $creditSum;
+        $account->debit_balance = $debitSum;
+    
+        return [$creditSum, $debitSum];
+    }
  
 
     public function isChild(): bool
@@ -139,12 +157,26 @@ class MainAccount extends Model
     }
 
     public function isParent() {
-            return $this->hasMany(MainAccount::class, 'parent_id');
+            return $this->hasMany(MainAccount::class, 'parent_id', 'id');
     }
 
     public function child_accounts() {
-        return $this->hasMany(MainAccount::class, 'parent_id');
+        return $this->hasMany(MainAccount::class, 'parent_id', 'id');
     }
+    
+
+    // Relationship to child accounts
+    public function childAccounts()
+    {
+        return $this->hasMany(MainAccount::class, 'parent_id', 'id');
+    }
+
+    // Relationship to parent account
+    public function parentAccount()
+    {
+        return $this->belongsTo(MainAccount::class, 'parent_id', 'id');
+    }
+
     
     public function sumBalanceOfChildren() {
         $business_id = request()->session()->get('user.business_id');
@@ -178,13 +210,26 @@ class MainAccount extends Model
         $query = MainAccount::where('business_id', $business_id)->whereNotNull('parent_id')
                             ->whereDoesntHave('child_accounts')
                             ->where('status', 'active');
+        // Apply search query if needed
+        if ($with_data && !empty($q)) {
+            $query->where(function ($query) use ($q) {
+                $query->where('name_ar', 'like', "%{$q}%")
+                    ->orWhere('name_en', 'like', "%{$q}%")
+                    ->orWhere('account_number', 'like', "%{$q}%");
+            });
+        }
+
         if ($with_data) {
-            if (! empty($q)) {
-                $query->where('name_ar', 'like', "%{$q}%")->orWhere('name_en', 'like', "%{$q}%");
-            }
             return $query->get();
         } else {
-            return $query->pluck('name_ar', 'name_en', 'id');
+            // Corrected usage for collecting multiple attributes
+            return $query->get()->mapWithKeys(function ($item) {
+                return [$item->id => [
+                    'name_ar' => $item->name_ar, 
+                    'name_en' => $item->name_en, 
+                    'account_number' => $item->account_number
+                ]];
+            });
         }
     }
 

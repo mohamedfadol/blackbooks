@@ -6,6 +6,9 @@
         .hidden {
     display: none !important;
 }
+.text-black {
+    color: #050505;
+}
     </style>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
@@ -37,7 +40,7 @@
 
     
 
-    <div class="col-md-8 col-md-offset-2">
+    <div class="col-md-12 col-md-offset-0">
         
         <div class="box box-warning">
             <div class="box-header with-border text-center">
@@ -70,39 +73,33 @@
                         <?php
                             $total_debit += $account->debit_balance;
                             $total_credit += $account->credit_balance;
-                           $final_balance1 += ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
-                           $final_balance2 += ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                            $final_balance1 += ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
+                            $final_balance2 += ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                            if ($account->parent_id === null || $account->child_accounts()->count() > 0){
+                                $account->calculateSum($account);
+                            }
                         ?>
                                  
-                            <tr class= 
-                                        <?php if($account->child_accounts->count() > 0): ?>
-                                        "text-success"
-                                        <?php else: ?>
-                                        "text-primary"
-                                        <?php endif; ?>  
-                            >
-                                <td> <a  class=<?php if($account->child_accounts()->count() > 0): ?>
-                                        "text-success"
-                                        <?php else: ?>
-                                        "text-primary"
-                                        <?php endif; ?>  href="<?php echo e(route("accounting.ledger",$account->id), false); ?>"> <?php echo e($account->account_number, false); ?> - <?php echo e($account->name_ar ?? $account->name_en, false); ?>  </a> </td>
-                                <td>
+                            <tr class=  <?php echo e($account->child_accounts->count() > 0 ? "text-success" : "text-black", false); ?> >
+                                <td> <a  class= <?php echo e($account->child_accounts()->count() > 0 ? "text-success" : "text-black", false); ?> href="<?php echo e(route("accounting.ledger",$account->id), false); ?>"> <?php echo e($account->account_number, false); ?> - <?php echo e($account->name_ar ?? $account->name_en, false); ?>  </a> </td>
+                                <td> 
                                     <?php if($account->debit_balance != 0): ?>
                                         <?php echo e(number_format($account->debit_balance,3,".",""), false); ?>
 
                                     <?php endif; ?>    
                                 </td>
-                                <td>
+                                <td> 
                                     <?php if($account->credit_balance != 0): ?>
                                         <?php echo e(number_format($account->credit_balance,3,".",""), false); ?>
 
                                     <?php endif; ?>
                                 </td>
                                 <?php
-                                    // $db1 = ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
-                                    // $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
-                                    $db1 = ($account->debit_balance - $account->credit_balance < 0) ? $account->child_sum_balance : ($account->debit_balance - $account->credit_balance );
-                                    $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : $account->child_sum_balance;
+                                
+                                    $db1 = ($account->debit_balance - $account->credit_balance < 0) ? 0 : ($account->debit_balance - $account->credit_balance );
+                                    $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : 0;
+                                    // $db1 = ($account->debit_balance - $account->credit_balance < 0) ? $account->child_sum_balance : ($account->debit_balance - $account->credit_balance );
+                                    // $db2 = ($account->debit_balance - $account->credit_balance < 0) ? ($account->debit_balance - $account->credit_balance ) : $account->child_sum_balance;
                                 ?>
                                 <td><?php echo e(number_format($db1,3,".",""), false); ?></td>
                                 <td><?php echo e(number_format($db2,3,".",""), false); ?></td>
@@ -206,4 +203,4 @@
 </script>
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\pos\Modules\Accounting\Providers/../Resources/views/report/trial_balance.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\pos\Modules\Accounting\Providers/../Resources/views/report/trial_balance.blade.php ENDPATH**/ ?>

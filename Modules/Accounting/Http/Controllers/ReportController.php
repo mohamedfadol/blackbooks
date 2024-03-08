@@ -82,48 +82,101 @@ class ReportController extends Controller
             $end_date = $fy['end'];
         }
 
-        $accounts = MainAccount::leftJoin('accounting_accounts_transactions as AAT','AAT.accounting_account_id', '=', 'main_accounts.id')
-                            ->where('business_id', $business_id)
+        // $accounts = MainAccount::leftJoin('accounting_accounts_transactions as AAT','AAT.accounting_account_id', '=', 'main_accounts.id')
+        //                     ->where('business_id', $business_id)
                             
-                            ->whereDate('AAT.operation_date', '>=', $start_date)
-                            ->whereDate('AAT.operation_date', '<=', $end_date)
-                            ->select(
-                                DB::raw("SUM(IF(AAT.type = 'credit', AAT.amount, 0)) as credit_balance"),
-                                DB::raw("SUM(IF(AAT.type = 'debit', AAT.amount, 0)) as debit_balance"),
-                                'main_accounts.name_ar',
-                                'main_accounts.name_en',
-                                'main_accounts.id',
-                                'main_accounts.account_number',
-                                'main_accounts.parent_id',
-                            )
-                            ->orderBy('main_accounts.account_number', 'asc')
-                            ->orderBy('main_accounts.id', 'asc')
-                            ->groupBy('main_accounts.name_ar')
-                            ->get();
+        //                     ->whereDate('AAT.operation_date', '>=', $start_date)
+        //                     ->whereDate('AAT.operation_date', '<=', $end_date)
+        //                     ->select(
+        //                         DB::raw("SUM(IF(AAT.type = 'credit', AAT.amount, 0)) as credit_balance"),
+        //                         DB::raw("SUM(IF(AAT.type = 'debit', AAT.amount, 0)) as debit_balance"),
+        //                         'main_accounts.name_ar',
+        //                         'main_accounts.name_en',
+        //                         'main_accounts.id',
+        //                         'main_accounts.account_number',
+        //                         'main_accounts.parent_id',
+        //                     )
+        //                     ->orderBy('main_accounts.account_number', 'asc')
+        //                     ->orderBy('main_accounts.id', 'asc')
+        //                     ->groupBy('main_accounts.name_ar')
+        //                     ->get();
 
-        // $accounts = MainAccount::leftJoin('accounting_accounts_transactions as AAT', function($join) use ($start_date, $end_date) {
-        //                 $join->on('AAT.accounting_account_id', '=', 'main_accounts.id')
-        //                         ->whereDate('AAT.operation_date', '>=', $start_date)
-        //                         ->whereDate('AAT.operation_date', '<=', $end_date);
-        //             })
-        //             ->where('business_id', $business_id)
-        //             // ->whereNull('AAT.id')
-        //             ->select(
-        //                 DB::raw("SUM(IF(AAT.type = 'credit', AAT.amount, 0)) as credit_balance"),
-        //                 DB::raw("SUM(IF(AAT.type = 'debit', AAT.amount, 0)) as debit_balance"),
-        //                 'main_accounts.name_ar',
-        //                 'main_accounts.name_en',
-        //                 'main_accounts.id',
-        //                 'main_accounts.account_number',
-        //                 'main_accounts.parent_id',
-        //             )
-        //             ->orderBy('main_accounts.account_number', 'asc')
-        //             ->orderBy('main_accounts.id', 'asc')
-        //             ->groupBy('main_accounts.name_ar')
-        //             ->get();
+        $sortedAccounts = MainAccount::with('child_accounts')->leftJoin('accounting_accounts_transactions as AAT', function($join) use ($start_date, $end_date) {
+            $join->on('AAT.accounting_account_id', '=', 'main_accounts.id')
+                        ->whereDate('AAT.operation_date', '>=', $start_date)
+                        ->whereDate('AAT.operation_date', '<=', $end_date);
+            })
+            ->where('business_id', $business_id)
+            ->select(
+                DB::raw("SUM(IF(AAT.type = 'credit', AAT.amount, 0)) as credit_balance"),
+                DB::raw("SUM(IF(AAT.type = 'debit', AAT.amount, 0)) as debit_balance"),
+                'main_accounts.name_ar','main_accounts.name_en','main_accounts.id',
+                'main_accounts.account_number','main_accounts.parent_id', 
+            )
+            ->orderBy('main_accounts.account_number', 'asc')
+            ->orderBy('main_accounts.parent_id', 'asc')
+            ->groupBy('main_accounts.name_ar')
+            ->get(); 
+            $accounts = collect($this->sortAccountsHierarchically($sortedAccounts));
 
-                    
+            // Sum of child account balances for each parent account
+            // $parentBalances = [];
+            // foreach ($accounts as $accountBalance) {
+            //     if (!isset($parentBalances[$accountBalance->parent_id])) {
+            //         $parentBalances[$accountBalance->parent_id] = 0;
+            //     }
+            //     $parentBalances[$accountBalance->parent_id] += $accountBalance->balance;
+            // }
+
+
+            // Assuming $mainAccounts is a collection of MainAccount models
+            // foreach ($accounts as $account) {
+            //     if (array_key_exists($account->id, $parentBalances)) {
+            //         $account->child_sum_balance = $parentBalances[$account->id];
+            //     } else {
+            //         $account->child_sum_balance = 0; // No child accounts or no transactions
+            //     }
+            // }
+
+            // Start the recursive sum calculation
+ 
+            // dd($accounts);
         return view('accounting::report.trial_balance')->with(compact('accounts', 'start_date', 'end_date'));
+    }
+
+    // Recursive function to calculate sums
+    public function calculateSum(&$account) {
+        // Initialize sums
+        $creditSum = $account->accountingAccountsTransactions->where('type', 'credit')->sum('amount');
+        $debitSum = $account->accountingAccountsTransactions->where('type', 'debit')->sum('amount');
+    
+        // Calculate sums for child accounts
+        foreach ($account->child_accounts as $child) {
+            [$childCredit, $childDebit] = $this->calculateSum($child);
+            $creditSum += $childCredit;
+            $debitSum += $childDebit;
+        }
+    
+        // Optional: store sums in the account object if you want to use them later
+        $account->credit_balance = $creditSum;
+        $account->debit_balance = $debitSum;
+    
+        return [$creditSum, $debitSum];
+    }
+    
+
+    public function sortAccountsHierarchically($accounts, $parentId = 0) {
+        $sortedAccounts = [];
+    
+        foreach ($accounts as $account) {
+            if ($account->parent_id == $parentId) {
+                $sortedAccounts[] = $account;
+                // Merge the sorted children into the sorted list
+                $sortedAccounts = array_merge($sortedAccounts, $this->sortAccountsHierarchically($accounts, $account->id));
+            }
+        }
+    
+        return $sortedAccounts;
     }
 
     /**

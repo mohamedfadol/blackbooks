@@ -54,10 +54,10 @@ class CoaController extends Controller
             
             $account_exist = MainAccount::where('business_id', $business_id)->exists();
 
-            if (request()->input('view_type') != 'table') {
-            //     return view('accounting::chart_of_accounts.accounts_table')
-            //             ->with(compact('accounts', 'account_exist'));
-            // } else {
+            if (request()->input('view_type') == 'table') {
+                return view('accounting::chart_of_accounts.accounts_table')
+                        ->with(compact('account_types', 'account_exist'));
+            } else {
                 
                 return view('accounting::chart_of_accounts.accounts_tree')
                 ->with(compact('account_exist', 'account_types'));
