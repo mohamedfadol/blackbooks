@@ -100,3 +100,41 @@ with laravel componnets for accounts and account  <x-accounts :accounts="$accoun
    7 - finished trial balance
 
    8- report finished  totla balance for debit and credit
+
+
+   Detailed Achievements
+Dynamic Order Allocation System:
+
+Objective: Improve the allocation of orders to kitchens based on product categories to optimize kitchen operations.
+Achievement: Developed a Laravel controller for sophisticated kitchen management, enabling dynamic and automated allocation of orders. This system parses incoming orders, categorizes them by product type, and assigns them to the appropriate kitchen queue.
+Technology Stack: Laravel MVC, PHP, MySQL.
+Kitchen Management Views:
+
+Objective: Create distinct, functional views for different operational roles within the kitchen.
+Achievement:
+Hale View: Developed for kitchen managers to oversee incoming orders in real-time, enhancing the ability to prioritize and manage the workflow.
+Receiver View: Tailored for staff responsible for initiating the preparation process, focusing on orders ready for action.
+Delivery View: Designed for the dispatch team to monitor prepared orders, ensuring timely delivery to customers.
+Impact: These views have significantly improved operational efficiency, providing clear, role-specific insights into order statuses.
+Transaction and Accounting System Integration:
+
+Objective: Automate the financial transaction process and ensure seamless integration with the accounting system.
+Achievement: Enhanced the transaction class to include automated updates of the info field upon order completion, which triggers status updates in the database. Developed a service class that handles differentiation between purchase and sales, integrating with a recursive function for tree-based accounting.
+Technical Details: Implemented RESTful API principles for service class integration, utilizing PHP for backend logic and MySQL for data storage. The recursive function for the tree structure was meticulously designed to ensure scalability and performance.
+Tax Rate Management:
+
+Objective: Provide a flexible system for managing and applying tax rates within the accounting framework.
+Achievement: Created a Laravel controller for tax rate management, allowing for the dynamic association of tax rates with specific accounts in the accounting tree. This functionality is essential for accurate financial reporting and compliance.
+Challenges: Ensuring accuracy and compliance with diverse tax laws was challenging. The solution involved extensive testing and the ability to easily update tax rates and associations as regulations change.
+Enhanced Reporting Capabilities:
+
+Objective: Improve financial reporting accuracy and detail.
+Achievement: Overhauled report queries to leverage the new tree account structure (mainAccounts), facilitating more detailed and accurate reporting. This update allows for granular financial insights and aids in strategic decision-making.
+Technical Details: Utilized advanced SQL queries and Laravel's Eloquent ORM for efficient data retrieval and manipulation.
+Challenges & Innovative Solutions
+Complex Order Categorization: Initially, accurately categorizing and routing orders based on product types was challenging due to the system's complexity and variability in product categories.
+
+Solution: Implemented an AI-based categorization algorithm within the Laravel backend, significantly improving accuracy and efficiency in order allocation.
+Accounting System Integration: The integration of a detailed accounting system with real-time order management presented challenges in maintaining data accuracy and consistency.
+
+Solution: Developed a custom Laravel service provider, ensuring robust communication between the order management system and the accounting system, achieving seamless data synchronization.

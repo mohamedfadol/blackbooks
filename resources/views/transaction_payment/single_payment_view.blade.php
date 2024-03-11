@@ -1,3 +1,68 @@
+<style type="text/css">
+.receipt-container {
+    width: 100%;
+    margin: auto;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .header {
+    text-align: center;
+    border-bottom: 2px solid #f00;
+    margin-bottom: 20px;
+  }
+  .company-info {
+    text-align: right;
+  }
+  .receipt-title {
+    color: #f00 !important;
+    font-size: 50px;
+    margin: 10px 0;
+  }
+  .receipt-titl {
+    color: #f00;
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  .voucher-details, .payment-details {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  .voucher-details th, .voucher-details td,
+  .payment-details th, .payment-details td {
+    border: 1px solid #000;
+    padding: 10px;
+    text-align: left;
+  }
+  .voucher-details th, .payment-details th {
+    background-color: #f2f2f2 !important;
+  }
+  .amount-box {
+    background-color: #add8e6 !important;
+    font-size: 20px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .right-text {
+    text-align: right;
+  }
+  .align-right {
+    text-align: right;
+  }
+  .text-center {
+    text-align: center;
+  }
+  .text-right {
+    text-align: right;
+  }
+  .full-width {
+    width: 100%;
+  }
+  .text-red {
+    color: #f00;
+  }
+</style>
+
 <div class="modal-dialog" role="document">
   <div class="modal-content">
     <div class="modal-header">

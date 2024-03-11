@@ -242,13 +242,14 @@ class MainAccount extends Model
     }
     
     public static function createNewAccount($input) {
-            $business_id = $input['business_id'];
-            if (! (auth()->user()->can('superadmin') ||
-                $this->moduleUtil->hasThePermissionInSubscription($business_id, 'accounting_module')) ||
-                ! (auth()->user()->can('accounting.manage_accounts'))) {
-                abort(403, 'Unauthorized action.');
-            }
+           
+            // if (! (auth()->user()->can('superadmin') ||
+            //     $this->moduleUtil->hasThePermissionInSubscription($business_id, 'accounting_module')) ||
+            //     ! (auth()->user()->can('accounting.manage_accounts'))) {
+            //     abort(403, 'Unauthorized action.');
+            // }
             try {
+                $business_id = $input['business_id'];
                 $parentAccount = MainAccount::where('business_id',$business_id)->find($input['account_id']);
                 $account = new MainAccount() ;
                 $account->name_en = $input['name_en'] ?? null;
@@ -260,7 +261,7 @@ class MainAccount extends Model
                 $account->created_by = auth()->user()->id;
                 $account->business_id = $input['business_id'];
                 $account->status = 'active';
-    
+     
                 if(!empty($parentAccount->account_number) ){
                     $parentAccountCildren = MainAccount::where('parent_id',$input['account_id'])->where('business_id',$business_id)->count();
                     if ($parentAccountCildren >= 1) {

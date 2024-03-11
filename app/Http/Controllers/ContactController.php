@@ -623,7 +623,7 @@ class ContactController extends Controller
                 $input['export_custom_field_5'] = $request->input('export_custom_field_5');
                 $input['export_custom_field_6'] = $request->input('export_custom_field_6');
             }
-
+ 
             if (! empty($input['dob'])) {
                 $input['dob'] = $this->commonUtil->uf_date($input['dob']);
             }
