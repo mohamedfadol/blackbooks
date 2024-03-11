@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Mar 05, 2024 at 05:28 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1:3306
+-- Generation Time: Mar 11, 2024 at 09:20 PM
+-- Server version: 8.2.0
+-- PHP Version: 8.2.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -27,20 +27,22 @@ SET time_zone = "+00:00";
 -- Table structure for table `accounting_accounts`
 --
 
-CREATE TABLE `accounting_accounts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `gl_code` varchar(191) DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
-  `account_primary_type` bigint(11) UNSIGNED NOT NULL,
-  `account_sub_type_id` bigint(20) DEFAULT NULL,
-  `detail_type_id` bigint(20) DEFAULT NULL,
-  `parent_account_id` bigint(20) DEFAULT NULL,
-  `description` longtext DEFAULT NULL,
-  `status` varchar(191) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `accounting_accounts`;
+CREATE TABLE IF NOT EXISTS `accounting_accounts` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gl_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int NOT NULL,
+  `account_primary_type` bigint UNSIGNED NOT NULL,
+  `account_sub_type_id` bigint DEFAULT NULL,
+  `detail_type_id` bigint DEFAULT NULL,
+  `parent_account_id` bigint DEFAULT NULL,
+  `description` longtext COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -49,62 +51,49 @@ CREATE TABLE `accounting_accounts` (
 -- Table structure for table `accounting_accounts_transactions`
 --
 
-CREATE TABLE `accounting_accounts_transactions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `accounting_account_id` bigint(20) UNSIGNED NOT NULL,
-  `acc_trans_mapping_id` int(11) DEFAULT NULL COMMENT 'id form accounting_acc_trans_mapping table',
-  `transaction_id` int(11) DEFAULT NULL COMMENT 'id form transactions table',
-  `transaction_payment_id` int(11) DEFAULT NULL COMMENT 'id form transaction_payments table',
+DROP TABLE IF EXISTS `accounting_accounts_transactions`;
+CREATE TABLE IF NOT EXISTS `accounting_accounts_transactions` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `accounting_account_id` bigint UNSIGNED NOT NULL,
+  `acc_trans_mapping_id` int DEFAULT NULL COMMENT 'id form accounting_acc_trans_mapping table',
+  `transaction_id` int DEFAULT NULL COMMENT 'id form transactions table',
+  `transaction_payment_id` int DEFAULT NULL COMMENT 'id form transaction_payments table',
   `amount` decimal(22,4) NOT NULL,
-  `type` varchar(100) NOT NULL COMMENT 'debit, credit etc',
-  `sub_type` varchar(100) NOT NULL,
-  `map_type` varchar(100) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'debit, credit etc',
+  `sub_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `map_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
   `operation_date` datetime NOT NULL,
-  `note` text DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `accounting_account_id` (`accounting_account_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `accounting_accounts_transactions`
 --
 
 INSERT INTO `accounting_accounts_transactions` (`id`, `accounting_account_id`, `acc_trans_mapping_id`, `transaction_id`, `transaction_payment_id`, `amount`, `type`, `sub_type`, `map_type`, `created_by`, `operation_date`, `note`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, NULL, NULL, 100.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-03 23:44:00', NULL, '2024-03-03 20:44:19', '2024-03-03 20:44:19'),
-(2, 5, 1, NULL, NULL, 100.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-03 23:44:00', NULL, '2024-03-03 20:44:19', '2024-03-03 20:44:19'),
-(3, 23, 2, 3, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:00:00', NULL, '2024-03-03 22:01:47', '2024-03-03 22:01:47'),
-(4, 20, 2, 3, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:00:00', NULL, '2024-03-03 22:01:47', '2024-03-03 22:01:47'),
-(5, 23, 3, 4, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:02:56', NULL, '2024-03-03 22:02:56', '2024-03-03 22:02:56'),
-(6, 20, 3, 4, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:02:56', NULL, '2024-03-03 22:02:56', '2024-03-03 22:02:56'),
-(7, 5, 4, NULL, NULL, 100.0000, 'credit', 'purchase', 'payment_account', 1, '2024-03-04 01:11:00', NULL, '2024-03-03 22:12:08', '2024-03-03 22:12:08'),
-(8, 6, 4, NULL, NULL, 100.0000, 'debit', 'purchase', 'deposit_to', 1, '2024-03-04 01:11:00', NULL, '2024-03-03 22:12:08', '2024-03-03 22:12:08'),
-(9, 21, 5, NULL, NULL, 100.0000, 'debit', 'expense', 'deposit_to', 1, '2024-03-04 01:14:25', NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(10, 3, 5, NULL, NULL, 100.0000, 'credit', 'expense', 'deposit_to', 1, '2024-03-04 01:14:25', NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(11, 3, 5, NULL, NULL, 100.0000, 'debit', 'expense', 'deposit_to', 1, '2024-03-04 01:14:25', NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(12, 5, 5, NULL, NULL, 100.0000, 'credit', 'expense', 'deposit_to', 1, '2024-03-04 01:14:25', NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(13, 5, 6, NULL, NULL, 100.0000, 'credit', 'purchase', 'payment_account', 1, '2024-03-04 01:32:00', NULL, '2024-03-03 22:33:48', '2024-03-03 22:33:48'),
-(14, 6, 6, NULL, NULL, 100.0000, 'debit', 'purchase', 'deposit_to', 1, '2024-03-04 01:32:00', NULL, '2024-03-03 22:33:48', '2024-03-03 22:33:48'),
-(15, 18, 7, NULL, NULL, 100.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-04 01:46:00', NULL, '2024-03-03 22:46:54', '2024-03-03 22:46:54'),
-(16, 11, 7, NULL, NULL, 100.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-04 01:46:00', NULL, '2024-03-03 22:46:54', '2024-03-03 22:46:54'),
-(17, 23, 8, 6, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:56:00', NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(18, 20, 8, 6, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:56:00', NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(19, 5, 8, 6, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:56:00', NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(20, 23, 8, 6, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:56:00', NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(21, 23, 9, 7, NULL, 115.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:59:00', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(22, 20, 9, 7, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:59:00', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(23, 17, 9, 7, NULL, 15.0000, 'debit', 'purchases', 'deposit_to', 1, '2024-03-04 01:59:00', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(24, 5, 9, 7, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 01:59:00', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(25, 23, 9, 7, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 01:59:00', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(26, 23, 10, 8, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 02:03:00', NULL, '2024-03-03 23:04:43', '2024-03-03 23:04:43'),
-(27, 20, 10, 8, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 02:03:00', NULL, '2024-03-03 23:04:43', '2024-03-03 23:04:43'),
-(28, 23, 11, 9, NULL, 100.0000, 'credit', 'purchases', 'deposit_to', 1, '2024-03-04 02:08:00', NULL, '2024-03-03 23:09:11', '2024-03-03 23:09:11'),
-(29, 20, 11, 9, NULL, 100.0000, 'debit', 'purchases', 'payment_account', 1, '2024-03-04 02:08:00', NULL, '2024-03-03 23:09:11', '2024-03-03 23:09:11'),
-(30, 3, 12, 10, NULL, 158.1300, 'debit', 'sell', 'deposit_to', 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
-(31, 4, 12, 10, NULL, 137.5000, 'credit', 'sell', 'payment_account', 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
-(32, 17, 12, 10, NULL, 20.6300, 'credit', 'sell', 'deposit_to', 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
-(33, 5, 12, 10, NULL, 158.1300, 'debit', 'sell', 'deposit_to', 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
-(34, 3, 12, 10, NULL, 158.1300, 'credit', 'sell', 'payment_account', 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
+(1, 3, 1, NULL, NULL, 1000.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(2, 9, 1, NULL, NULL, 1000.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(3, 4, 1, NULL, NULL, 1500.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(4, 10, 1, NULL, NULL, 1500.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(5, 7, 1, NULL, NULL, 500.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(6, 3, 1, NULL, NULL, 250.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(7, 10, 1, NULL, NULL, 750.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(8, 4, 1, NULL, NULL, 150.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(9, 3, 1, NULL, NULL, 150.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(10, 9, 1, NULL, NULL, 300.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(11, 3, 2, NULL, NULL, 1750.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 23:23:00', NULL, '2024-03-08 20:24:33', '2024-03-08 20:24:33'),
+(12, 14, 2, NULL, NULL, 1750.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 23:23:00', NULL, '2024-03-08 20:24:33', '2024-03-08 20:24:33'),
+(13, 7, 2, NULL, NULL, 250.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 23:23:00', NULL, '2024-03-08 20:24:33', '2024-03-08 20:24:33'),
+(14, 4, 2, NULL, NULL, 250.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 23:23:00', NULL, '2024-03-08 20:24:33', '2024-03-08 20:24:33'),
+(15, 20, 3, NULL, NULL, 300.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 23:30:00', NULL, '2024-03-08 20:30:47', '2024-03-08 20:30:47'),
+(16, 3, 3, NULL, NULL, 300.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 23:30:00', NULL, '2024-03-08 20:30:47', '2024-03-08 20:30:47'),
+(17, 21, 4, NULL, NULL, 541.0000, 'debit', 'journal_entry', NULL, 1, '2024-03-08 23:32:00', NULL, '2024-03-08 20:33:42', '2024-03-08 20:33:42'),
+(18, 12, 4, NULL, NULL, 541.0000, 'credit', 'journal_entry', NULL, 1, '2024-03-08 23:32:00', NULL, '2024-03-08 20:33:42', '2024-03-08 20:33:42');
 
 -- --------------------------------------------------------
 
@@ -112,19 +101,21 @@ INSERT INTO `accounting_accounts_transactions` (`id`, `accounting_account_id`, `
 -- Table structure for table `accounting_account_types`
 --
 
-CREATE TABLE `accounting_account_types` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(11) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `account_primary_type` varchar(191) DEFAULT NULL,
-  `account_type` varchar(191) DEFAULT NULL,
-  `parent_id` bigint(20) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `show_balance` tinyint(1) NOT NULL DEFAULT 1,
-  `numeric_account` varchar(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `accounting_account_types`;
+CREATE TABLE IF NOT EXISTS `accounting_account_types` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
+  `account_primary_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `account_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_id` bigint DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `show_balance` tinyint(1) NOT NULL DEFAULT '1',
+  `numeric_account` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -133,29 +124,33 @@ CREATE TABLE `accounting_account_types` (
 -- Table structure for table `accounting_acc_trans_mappings`
 --
 
-CREATE TABLE `accounting_acc_trans_mappings` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `ref_no` varchar(100) NOT NULL,
-  `type` varchar(100) NOT NULL,
-  `journal_company_general` varchar(30) NOT NULL DEFAULT 'journal_company_general',
-  `journal_openning` varchar(30) DEFAULT NULL,
-  `original` varchar(30) DEFAULT NULL,
-  `number` bigint(20) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `accounting_acc_trans_mappings`;
+CREATE TABLE IF NOT EXISTS `accounting_acc_trans_mappings` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `ref_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `journal_company_general` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'journal_company_general',
+  `journal_openning` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `original` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` bigint DEFAULT NULL,
+  `created_by` int NOT NULL,
   `operation_date` datetime NOT NULL,
-  `note` text DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `accounting_acc_trans_mappings`
 --
 
 INSERT INTO `accounting_acc_trans_mappings` (`id`, `business_id`, `ref_no`, `type`, `journal_company_general`, `journal_openning`, `original`, `number`, `created_by`, `operation_date`, `note`, `created_at`, `updated_at`) VALUES
-(11, 1, '2024/0049', '', 'journal_company_general', NULL, 'purchases', 1, 1, '2024-03-04 02:08:00', NULL, '2024-03-03 23:09:11', '2024-03-03 23:09:11'),
-(12, 1, '2024/0050', '', 'journal_company_general', NULL, 'sale', 2, 1, '2024-03-04 02:25:00', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
+(1, 1, '2024/0051', 'journal_entry', 'journal_company_general', NULL, NULL, 1, 1, '2024-03-08 21:20:00', NULL, '2024-03-08 18:22:31', '2024-03-08 18:22:31'),
+(2, 1, '2024/0052', 'journal_entry', 'journal_company_general', NULL, NULL, 2, 1, '2024-03-08 23:23:00', NULL, '2024-03-08 20:24:33', '2024-03-08 20:24:33'),
+(3, 1, '2024/0053', 'journal_entry', 'journal_company_general', NULL, NULL, 3, 1, '2024-03-08 23:30:00', NULL, '2024-03-08 20:30:47', '2024-03-08 20:30:47'),
+(4, 1, '2024/0054', 'journal_entry', 'journal_company_general', NULL, NULL, 4, 1, '2024-03-08 23:32:00', NULL, '2024-03-08 20:33:42', '2024-03-08 20:33:42');
 
 -- --------------------------------------------------------
 
@@ -163,10 +158,11 @@ INSERT INTO `accounting_acc_trans_mappings` (`id`, `business_id`, `ref_no`, `typ
 -- Table structure for table `accounting_budgets`
 --
 
-CREATE TABLE `accounting_budgets` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `accounting_account_id` bigint(20) UNSIGNED NOT NULL,
-  `financial_year` int(11) NOT NULL,
+DROP TABLE IF EXISTS `accounting_budgets`;
+CREATE TABLE IF NOT EXISTS `accounting_budgets` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `accounting_account_id` bigint UNSIGNED NOT NULL,
+  `financial_year` int NOT NULL,
   `jan` decimal(22,4) DEFAULT NULL,
   `feb` decimal(22,4) DEFAULT NULL,
   `mar` decimal(22,4) DEFAULT NULL,
@@ -185,7 +181,8 @@ CREATE TABLE `accounting_budgets` (
   `quarter_4` decimal(22,4) DEFAULT NULL,
   `yearly` decimal(22,4) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -194,19 +191,24 @@ CREATE TABLE `accounting_budgets` (
 -- Table structure for table `accounts`
 --
 
-CREATE TABLE `accounts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `account_number` varchar(191) NOT NULL,
-  `account_details` text DEFAULT NULL,
-  `account_type_id` int(11) DEFAULT NULL,
-  `note` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `is_closed` tinyint(1) NOT NULL DEFAULT 0,
+DROP TABLE IF EXISTS `accounts`;
+CREATE TABLE IF NOT EXISTS `accounts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `account_number` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `account_details` text COLLATE utf8mb4_unicode_ci,
+  `account_type_id` int DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
+  `is_closed` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `accounts_business_id_index` (`business_id`),
+  KEY `accounts_account_type_id_index` (`account_type_id`),
+  KEY `accounts_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -215,16 +217,20 @@ CREATE TABLE `accounts` (
 -- Table structure for table `account_categories`
 --
 
-CREATE TABLE `account_categories` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name_ar` varchar(191) NOT NULL,
-  `name_en` varchar(191) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `parent_id` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `account_categories`;
+CREATE TABLE IF NOT EXISTS `account_categories` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name_ar` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_en` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `parent_id` int DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_categories_business_id_foreign` (`business_id`),
+  KEY `account_categories_created_by_foreign` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `account_categories`
@@ -240,23 +246,33 @@ INSERT INTO `account_categories` (`id`, `name_ar`, `name_en`, `business_id`, `pa
 -- Table structure for table `account_transactions`
 --
 
-CREATE TABLE `account_transactions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `account_id` int(11) NOT NULL,
-  `type` enum('debit','credit') NOT NULL,
-  `sub_type` enum('opening_balance','fund_transfer','deposit') DEFAULT NULL,
+DROP TABLE IF EXISTS `account_transactions`;
+CREATE TABLE IF NOT EXISTS `account_transactions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `account_id` int NOT NULL,
+  `type` enum('debit','credit') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sub_type` enum('opening_balance','fund_transfer','deposit') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `amount` decimal(22,4) NOT NULL,
-  `reff_no` varchar(191) DEFAULT NULL,
+  `reff_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `operation_date` datetime NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `transaction_id` int(11) DEFAULT NULL,
-  `transaction_payment_id` int(11) DEFAULT NULL,
-  `transfer_transaction_id` int(11) DEFAULT NULL,
-  `note` text DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `transaction_id` int DEFAULT NULL,
+  `transaction_payment_id` int DEFAULT NULL,
+  `transfer_transaction_id` int DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_transactions_account_id_index` (`account_id`),
+  KEY `account_transactions_transaction_id_index` (`transaction_id`),
+  KEY `account_transactions_transaction_payment_id_index` (`transaction_payment_id`),
+  KEY `account_transactions_transfer_transaction_id_index` (`transfer_transaction_id`),
+  KEY `account_transactions_created_by_index` (`created_by`),
+  KEY `account_transactions_type_index` (`type`),
+  KEY `account_transactions_sub_type_index` (`sub_type`),
+  KEY `account_transactions_operation_date_index` (`operation_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `account_transactions`
@@ -271,13 +287,17 @@ INSERT INTO `account_transactions` (`id`, `account_id`, `type`, `sub_type`, `amo
 -- Table structure for table `account_types`
 --
 
-CREATE TABLE `account_types` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `parent_account_type_id` int(11) DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `account_types`;
+CREATE TABLE IF NOT EXISTS `account_types` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `parent_account_type_id` int DEFAULT NULL,
+  `business_id` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_types_parent_account_type_id_index` (`parent_account_type_id`),
+  KEY `account_types_business_id_index` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -286,21 +306,24 @@ CREATE TABLE `account_types` (
 -- Table structure for table `activity_log`
 --
 
-CREATE TABLE `activity_log` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `log_name` varchar(191) DEFAULT NULL,
-  `description` text NOT NULL,
-  `subject_id` int(11) DEFAULT NULL,
-  `subject_type` varchar(191) DEFAULT NULL,
-  `event` varchar(191) DEFAULT NULL,
-  `business_id` int(11) DEFAULT NULL,
-  `causer_id` int(11) DEFAULT NULL,
-  `causer_type` varchar(191) DEFAULT NULL,
-  `properties` text DEFAULT NULL,
-  `batch_uuid` char(36) DEFAULT NULL,
+DROP TABLE IF EXISTS `activity_log`;
+CREATE TABLE IF NOT EXISTS `activity_log` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `log_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subject_id` int DEFAULT NULL,
+  `subject_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `event` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int DEFAULT NULL,
+  `causer_id` int DEFAULT NULL,
+  `causer_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `properties` text COLLATE utf8mb4_unicode_ci,
+  `batch_uuid` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `activity_log_log_name_index` (`log_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `activity_log`
@@ -314,7 +337,8 @@ INSERT INTO `activity_log` (`id`, `log_name`, `description`, `subject_id`, `subj
 (5, 'default', 'added', 7, 'App\\Transaction', NULL, 1, 1, 'App\\User', '{\"attributes\":{\"type\":\"purchase\",\"status\":\"received\",\"payment_status\":\"due\",\"final_total\":115}}', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
 (6, 'default', 'added', 8, 'App\\Transaction', NULL, 1, 1, 'App\\User', '{\"attributes\":{\"type\":\"purchase\",\"status\":\"received\",\"payment_status\":\"due\",\"final_total\":100}}', NULL, '2024-03-03 23:04:43', '2024-03-03 23:04:43'),
 (7, 'default', 'added', 9, 'App\\Transaction', NULL, 1, 1, 'App\\User', '{\"attributes\":{\"type\":\"purchase\",\"status\":\"received\",\"payment_status\":\"due\",\"final_total\":100}}', NULL, '2024-03-03 23:09:12', '2024-03-03 23:09:12'),
-(8, 'default', 'added', 10, 'App\\Transaction', NULL, 1, 1, 'App\\User', '{\"attributes\":{\"type\":\"sell\",\"status\":\"final\",\"payment_status\":\"paid\",\"final_total\":158.13}}', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
+(8, 'default', 'added', 10, 'App\\Transaction', NULL, 1, 1, 'App\\User', '{\"attributes\":{\"type\":\"sell\",\"status\":\"final\",\"payment_status\":\"paid\",\"final_total\":158.13}}', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
+(9, 'default', 'added', 38, 'App\\Contact', NULL, 1, 1, 'App\\User', '[]', NULL, '2024-03-08 21:49:30', '2024-03-08 21:49:30');
 
 -- --------------------------------------------------------
 
@@ -322,25 +346,30 @@ INSERT INTO `activity_log` (`id`, `log_name`, `description`, `subject_id`, `subj
 -- Table structure for table `assets`
 --
 
-CREATE TABLE `assets` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `asset_code` varchar(191) NOT NULL,
-  `name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `assets`;
+CREATE TABLE IF NOT EXISTS `assets` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `asset_code` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` decimal(22,4) NOT NULL,
-  `model` varchar(191) DEFAULT NULL,
-  `serial_no` varchar(191) DEFAULT NULL,
-  `category_id` int(10) UNSIGNED DEFAULT NULL,
-  `location_id` int(10) UNSIGNED DEFAULT NULL,
+  `model` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `serial_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category_id` int UNSIGNED DEFAULT NULL,
+  `location_id` int UNSIGNED DEFAULT NULL,
   `purchase_date` date DEFAULT NULL,
-  `purchase_type` varchar(191) DEFAULT NULL,
+  `purchase_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `unit_price` decimal(22,4) NOT NULL,
   `depreciation` decimal(22,4) DEFAULT NULL,
-  `is_allocatable` tinyint(1) NOT NULL DEFAULT 0,
-  `description` text DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+  `is_allocatable` tinyint(1) NOT NULL DEFAULT '0',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `assets_business_id_foreign` (`business_id`),
+  KEY `assets_category_id_foreign` (`category_id`),
+  KEY `assets_created_by_foreign` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -349,19 +378,27 @@ CREATE TABLE `assets` (
 -- Table structure for table `asset_maintenances`
 --
 
-CREATE TABLE `asset_maintenances` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `asset_id` int(11) NOT NULL,
-  `maitenance_id` varchar(191) DEFAULT NULL,
-  `status` varchar(191) DEFAULT NULL,
-  `priority` varchar(191) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `assigned_to` int(11) DEFAULT NULL,
-  `details` text DEFAULT NULL,
-  `maintenance_note` text DEFAULT NULL,
+DROP TABLE IF EXISTS `asset_maintenances`;
+CREATE TABLE IF NOT EXISTS `asset_maintenances` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `asset_id` int NOT NULL,
+  `maitenance_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `priority` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int NOT NULL,
+  `assigned_to` int DEFAULT NULL,
+  `details` text COLLATE utf8mb4_unicode_ci,
+  `maintenance_note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `asset_maintenances_business_id_index` (`business_id`),
+  KEY `asset_maintenances_asset_id_index` (`asset_id`),
+  KEY `asset_maintenances_status_index` (`status`),
+  KEY `asset_maintenances_priority_index` (`priority`),
+  KEY `asset_maintenances_created_by_index` (`created_by`),
+  KEY `asset_maintenances_assigned_to_index` (`assigned_to`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -370,21 +407,28 @@ CREATE TABLE `asset_maintenances` (
 -- Table structure for table `asset_transactions`
 --
 
-CREATE TABLE `asset_transactions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `asset_id` int(10) UNSIGNED DEFAULT NULL,
-  `transaction_type` varchar(191) NOT NULL,
-  `ref_no` varchar(191) NOT NULL,
-  `receiver` int(10) UNSIGNED DEFAULT NULL COMMENT 'id from users table, who receives asset',
+DROP TABLE IF EXISTS `asset_transactions`;
+CREATE TABLE IF NOT EXISTS `asset_transactions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `asset_id` int UNSIGNED DEFAULT NULL,
+  `transaction_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ref_no` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `receiver` int UNSIGNED DEFAULT NULL COMMENT 'id from users table, who receives asset',
   `quantity` decimal(22,4) NOT NULL,
   `transaction_datetime` datetime NOT NULL,
   `allocated_upto` date DEFAULT NULL,
-  `reason` text DEFAULT NULL,
-  `parent_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'id from asset_transactions table',
-  `created_by` int(10) UNSIGNED NOT NULL COMMENT 'id from users table, who allocated asset',
+  `reason` text COLLATE utf8mb4_unicode_ci,
+  `parent_id` int UNSIGNED DEFAULT NULL COMMENT 'id from asset_transactions table',
+  `created_by` int UNSIGNED NOT NULL COMMENT 'id from users table, who allocated asset',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `asset_transactions_business_id_foreign` (`business_id`),
+  KEY `asset_transactions_asset_id_foreign` (`asset_id`),
+  KEY `asset_transactions_receiver_foreign` (`receiver`),
+  KEY `asset_transactions_parent_id_foreign` (`parent_id`),
+  KEY `asset_transactions_created_by_foreign` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -393,15 +437,17 @@ CREATE TABLE `asset_transactions` (
 -- Table structure for table `asset_warranties`
 --
 
-CREATE TABLE `asset_warranties` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `asset_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `asset_warranties`;
+CREATE TABLE IF NOT EXISTS `asset_warranties` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `asset_id` int NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `additional_cost` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `additional_note` text DEFAULT NULL,
+  `additional_cost` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `additional_note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -410,10 +456,11 @@ CREATE TABLE `asset_warranties` (
 -- Table structure for table `barcodes`
 --
 
-CREATE TABLE `barcodes` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
+DROP TABLE IF EXISTS `barcodes`;
+CREATE TABLE IF NOT EXISTS `barcodes` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `width` double(22,4) DEFAULT NULL,
   `height` double(22,4) DEFAULT NULL,
   `paper_width` double(22,4) DEFAULT NULL,
@@ -422,14 +469,16 @@ CREATE TABLE `barcodes` (
   `left_margin` double(22,4) DEFAULT NULL,
   `row_distance` double(22,4) DEFAULT NULL,
   `col_distance` double(22,4) DEFAULT NULL,
-  `stickers_in_one_row` int(11) DEFAULT NULL,
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `is_continuous` tinyint(1) NOT NULL DEFAULT 0,
-  `stickers_in_one_sheet` int(11) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED DEFAULT NULL,
+  `stickers_in_one_row` int DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `is_continuous` tinyint(1) NOT NULL DEFAULT '0',
+  `stickers_in_one_sheet` int DEFAULT NULL,
+  `business_id` int UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `barcodes_business_id_foreign` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `barcodes`
@@ -449,21 +498,31 @@ INSERT INTO `barcodes` (`id`, `name`, `description`, `width`, `height`, `paper_w
 -- Table structure for table `bookings`
 --
 
-CREATE TABLE `bookings` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `contact_id` int(10) UNSIGNED NOT NULL,
-  `waiter_id` int(10) UNSIGNED DEFAULT NULL,
-  `table_id` int(10) UNSIGNED DEFAULT NULL,
-  `correspondent_id` int(11) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `bookings`;
+CREATE TABLE IF NOT EXISTS `bookings` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_id` int UNSIGNED NOT NULL,
+  `waiter_id` int UNSIGNED DEFAULT NULL,
+  `table_id` int UNSIGNED DEFAULT NULL,
+  `correspondent_id` int DEFAULT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED NOT NULL,
   `booking_start` datetime NOT NULL,
   `booking_end` datetime NOT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `booking_status` varchar(191) NOT NULL,
-  `booking_note` text DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
+  `booking_status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `booking_note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bookings_contact_id_foreign` (`contact_id`),
+  KEY `bookings_business_id_foreign` (`business_id`),
+  KEY `bookings_created_by_foreign` (`created_by`),
+  KEY `bookings_table_id_index` (`table_id`),
+  KEY `bookings_waiter_id_index` (`waiter_id`),
+  KEY `bookings_location_id_index` (`location_id`),
+  KEY `bookings_booking_status_index` (`booking_status`),
+  KEY `bookings_correspondent_id_index` (`correspondent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -472,16 +531,20 @@ CREATE TABLE `bookings` (
 -- Table structure for table `brands`
 --
 
-CREATE TABLE `brands` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `use_for_repair` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'brands to be used on repair module',
+DROP TABLE IF EXISTS `brands`;
+CREATE TABLE IF NOT EXISTS `brands` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int UNSIGNED NOT NULL,
+  `use_for_repair` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'brands to be used on repair module',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `brands_business_id_foreign` (`business_id`),
+  KEY `brands_created_by_foreign` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -490,97 +553,102 @@ CREATE TABLE `brands` (
 -- Table structure for table `business`
 --
 
-CREATE TABLE `business` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `currency_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `business`;
+CREATE TABLE IF NOT EXISTS `business` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency_id` int UNSIGNED NOT NULL,
   `start_date` date DEFAULT NULL,
-  `tax_number_1` varchar(100) DEFAULT NULL,
-  `tax_label_1` varchar(10) DEFAULT NULL,
-  `tax_number_2` varchar(100) DEFAULT NULL,
-  `tax_label_2` varchar(10) DEFAULT NULL,
-  `code_label_1` varchar(191) DEFAULT NULL,
-  `code_1` varchar(191) DEFAULT NULL,
-  `code_label_2` varchar(191) DEFAULT NULL,
-  `code_2` varchar(191) DEFAULT NULL,
-  `default_sales_tax` int(10) UNSIGNED DEFAULT NULL,
-  `default_profit_percent` double(5,2) NOT NULL DEFAULT 0.00,
-  `owner_id` int(10) UNSIGNED NOT NULL,
-  `time_zone` varchar(191) NOT NULL DEFAULT 'Asia/Kolkata',
-  `fy_start_month` tinyint(4) NOT NULL DEFAULT 1,
-  `accounting_method` enum('fifo','lifo','avco') NOT NULL DEFAULT 'fifo',
+  `tax_number_1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_label_1` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_number_2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_label_2` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code_label_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code_label_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `code_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `default_sales_tax` int UNSIGNED DEFAULT NULL,
+  `default_profit_percent` double(5,2) NOT NULL DEFAULT '0.00',
+  `owner_id` int UNSIGNED NOT NULL,
+  `time_zone` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Asia/Kolkata',
+  `fy_start_month` tinyint NOT NULL DEFAULT '1',
+  `accounting_method` enum('fifo','lifo','avco') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'fifo',
   `default_sales_discount` decimal(5,2) DEFAULT NULL,
-  `sell_price_tax` enum('includes','excludes') NOT NULL DEFAULT 'includes',
-  `logo` varchar(191) DEFAULT NULL,
-  `sku_prefix` varchar(191) DEFAULT NULL,
-  `enable_product_expiry` tinyint(1) NOT NULL DEFAULT 0,
-  `expiry_type` enum('add_expiry','add_manufacturing') NOT NULL DEFAULT 'add_expiry',
-  `on_product_expiry` enum('keep_selling','stop_selling','auto_delete') NOT NULL DEFAULT 'keep_selling',
-  `stop_selling_before` int(11) NOT NULL COMMENT 'Stop selling expied item n days before expiry',
-  `enable_tooltip` tinyint(1) NOT NULL DEFAULT 1,
-  `purchase_in_diff_currency` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Allow purchase to be in different currency then the business currency',
-  `purchase_currency_id` int(10) UNSIGNED DEFAULT NULL,
-  `p_exchange_rate` decimal(20,3) NOT NULL DEFAULT 1.000,
-  `transaction_edit_days` int(10) UNSIGNED NOT NULL DEFAULT 30,
-  `stock_expiry_alert_days` int(10) UNSIGNED NOT NULL DEFAULT 30,
-  `keyboard_shortcuts` text DEFAULT NULL,
-  `pos_settings` text DEFAULT NULL,
-  `essentials_settings` longtext DEFAULT NULL,
-  `woocommerce_api_settings` text DEFAULT NULL,
-  `woocommerce_skipped_orders` text DEFAULT NULL,
-  `woocommerce_wh_oc_secret` varchar(191) DEFAULT NULL,
-  `woocommerce_wh_ou_secret` varchar(191) DEFAULT NULL,
-  `woocommerce_wh_od_secret` varchar(191) DEFAULT NULL,
-  `woocommerce_wh_or_secret` varchar(191) DEFAULT NULL,
-  `manufacturing_settings` text DEFAULT NULL,
-  `weighing_scale_setting` text NOT NULL COMMENT 'used to store the configuration of weighing scale',
-  `enable_brand` tinyint(1) NOT NULL DEFAULT 1,
-  `enable_category` tinyint(1) NOT NULL DEFAULT 1,
-  `enable_sub_category` tinyint(1) NOT NULL DEFAULT 1,
-  `enable_price_tax` tinyint(1) NOT NULL DEFAULT 1,
-  `enable_purchase_status` tinyint(1) DEFAULT 1,
-  `enable_lot_number` tinyint(1) NOT NULL DEFAULT 0,
-  `default_unit` int(11) DEFAULT NULL,
-  `enable_sub_units` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_racks` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_row` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_position` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_editing_product_from_purchase` tinyint(1) NOT NULL DEFAULT 1,
-  `sales_cmsn_agnt` enum('logged_in_user','user','cmsn_agnt') DEFAULT NULL,
-  `item_addition_method` tinyint(1) NOT NULL DEFAULT 1,
-  `enable_inline_tax` tinyint(1) NOT NULL DEFAULT 1,
-  `currency_symbol_placement` enum('before','after') NOT NULL DEFAULT 'before',
-  `enabled_modules` text DEFAULT NULL,
-  `date_format` varchar(191) NOT NULL DEFAULT 'm/d/Y',
-  `time_format` enum('12','24') NOT NULL DEFAULT '24',
-  `currency_precision` tinyint(4) NOT NULL DEFAULT 2,
-  `quantity_precision` tinyint(4) NOT NULL DEFAULT 2,
-  `ref_no_prefixes` text DEFAULT NULL,
-  `theme_color` char(20) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `crm_settings` text DEFAULT NULL,
-  `asset_settings` text DEFAULT NULL,
-  `repair_settings` text DEFAULT NULL,
-  `accounting_settings` text DEFAULT NULL,
-  `enable_rp` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `rp_name` varchar(191) DEFAULT NULL COMMENT 'rp is the short form of reward points',
-  `amount_for_unit_rp` decimal(22,4) NOT NULL DEFAULT 1.0000 COMMENT 'rp is the short form of reward points',
-  `min_order_total_for_rp` decimal(22,4) NOT NULL DEFAULT 1.0000 COMMENT 'rp is the short form of reward points',
-  `max_rp_per_order` int(11) DEFAULT NULL COMMENT 'rp is the short form of reward points',
-  `redeem_amount_per_unit_rp` decimal(22,4) NOT NULL DEFAULT 1.0000 COMMENT 'rp is the short form of reward points',
-  `min_order_total_for_redeem` decimal(22,4) NOT NULL DEFAULT 1.0000 COMMENT 'rp is the short form of reward points',
-  `min_redeem_point` int(11) DEFAULT NULL COMMENT 'rp is the short form of reward points',
-  `max_redeem_point` int(11) DEFAULT NULL COMMENT 'rp is the short form of reward points',
-  `rp_expiry_period` int(11) DEFAULT NULL COMMENT 'rp is the short form of reward points',
-  `rp_expiry_type` enum('month','year') NOT NULL DEFAULT 'year' COMMENT 'rp is the short form of reward points',
-  `email_settings` text DEFAULT NULL,
-  `sms_settings` text DEFAULT NULL,
-  `custom_labels` text DEFAULT NULL,
-  `common_settings` text DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `sell_price_tax` enum('includes','excludes') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'includes',
+  `logo` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sku_prefix` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enable_product_expiry` tinyint(1) NOT NULL DEFAULT '0',
+  `expiry_type` enum('add_expiry','add_manufacturing') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'add_expiry',
+  `on_product_expiry` enum('keep_selling','stop_selling','auto_delete') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'keep_selling',
+  `stop_selling_before` int NOT NULL COMMENT 'Stop selling expied item n days before expiry',
+  `enable_tooltip` tinyint(1) NOT NULL DEFAULT '1',
+  `purchase_in_diff_currency` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Allow purchase to be in different currency then the business currency',
+  `purchase_currency_id` int UNSIGNED DEFAULT NULL,
+  `p_exchange_rate` decimal(20,3) NOT NULL DEFAULT '1.000',
+  `transaction_edit_days` int UNSIGNED NOT NULL DEFAULT '30',
+  `stock_expiry_alert_days` int UNSIGNED NOT NULL DEFAULT '30',
+  `keyboard_shortcuts` text COLLATE utf8mb4_unicode_ci,
+  `pos_settings` text COLLATE utf8mb4_unicode_ci,
+  `essentials_settings` longtext COLLATE utf8mb4_unicode_ci,
+  `woocommerce_api_settings` text COLLATE utf8mb4_unicode_ci,
+  `woocommerce_skipped_orders` text COLLATE utf8mb4_unicode_ci,
+  `woocommerce_wh_oc_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_wh_ou_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_wh_od_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_wh_or_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `manufacturing_settings` text COLLATE utf8mb4_unicode_ci,
+  `weighing_scale_setting` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'used to store the configuration of weighing scale',
+  `enable_brand` tinyint(1) NOT NULL DEFAULT '1',
+  `enable_category` tinyint(1) NOT NULL DEFAULT '1',
+  `enable_sub_category` tinyint(1) NOT NULL DEFAULT '1',
+  `enable_price_tax` tinyint(1) NOT NULL DEFAULT '1',
+  `enable_purchase_status` tinyint(1) DEFAULT '1',
+  `enable_lot_number` tinyint(1) NOT NULL DEFAULT '0',
+  `default_unit` int DEFAULT NULL,
+  `enable_sub_units` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_racks` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_row` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_position` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_editing_product_from_purchase` tinyint(1) NOT NULL DEFAULT '1',
+  `sales_cmsn_agnt` enum('logged_in_user','user','cmsn_agnt') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `item_addition_method` tinyint(1) NOT NULL DEFAULT '1',
+  `enable_inline_tax` tinyint(1) NOT NULL DEFAULT '1',
+  `currency_symbol_placement` enum('before','after') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'before',
+  `enabled_modules` text COLLATE utf8mb4_unicode_ci,
+  `date_format` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'm/d/Y',
+  `time_format` enum('12','24') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '24',
+  `currency_precision` tinyint NOT NULL DEFAULT '2',
+  `quantity_precision` tinyint NOT NULL DEFAULT '2',
+  `ref_no_prefixes` text COLLATE utf8mb4_unicode_ci,
+  `theme_color` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
+  `crm_settings` text COLLATE utf8mb4_unicode_ci,
+  `asset_settings` text COLLATE utf8mb4_unicode_ci,
+  `repair_settings` text COLLATE utf8mb4_unicode_ci,
+  `accounting_settings` text COLLATE utf8mb4_unicode_ci,
+  `enable_rp` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `rp_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'rp is the short form of reward points',
+  `amount_for_unit_rp` decimal(22,4) NOT NULL DEFAULT '1.0000' COMMENT 'rp is the short form of reward points',
+  `min_order_total_for_rp` decimal(22,4) NOT NULL DEFAULT '1.0000' COMMENT 'rp is the short form of reward points',
+  `max_rp_per_order` int DEFAULT NULL COMMENT 'rp is the short form of reward points',
+  `redeem_amount_per_unit_rp` decimal(22,4) NOT NULL DEFAULT '1.0000' COMMENT 'rp is the short form of reward points',
+  `min_order_total_for_redeem` decimal(22,4) NOT NULL DEFAULT '1.0000' COMMENT 'rp is the short form of reward points',
+  `min_redeem_point` int DEFAULT NULL COMMENT 'rp is the short form of reward points',
+  `max_redeem_point` int DEFAULT NULL COMMENT 'rp is the short form of reward points',
+  `rp_expiry_period` int DEFAULT NULL COMMENT 'rp is the short form of reward points',
+  `rp_expiry_type` enum('month','year') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'year' COMMENT 'rp is the short form of reward points',
+  `email_settings` text COLLATE utf8mb4_unicode_ci,
+  `sms_settings` text COLLATE utf8mb4_unicode_ci,
+  `custom_labels` text COLLATE utf8mb4_unicode_ci,
+  `common_settings` text COLLATE utf8mb4_unicode_ci,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `business_owner_id_foreign` (`owner_id`),
+  KEY `business_currency_id_foreign` (`currency_id`),
+  KEY `business_default_sales_tax_foreign` (`default_sales_tax`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `business`
@@ -595,40 +663,49 @@ INSERT INTO `business` (`id`, `name`, `currency_id`, `start_date`, `tax_number_1
 -- Table structure for table `business_locations`
 --
 
-CREATE TABLE `business_locations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` varchar(191) DEFAULT NULL,
-  `name` varchar(256) NOT NULL,
-  `landmark` text DEFAULT NULL,
-  `country` varchar(100) NOT NULL,
-  `state` varchar(100) NOT NULL,
-  `city` varchar(100) NOT NULL,
-  `zip_code` char(7) NOT NULL,
-  `invoice_scheme_id` int(10) UNSIGNED NOT NULL,
-  `sale_invoice_scheme_id` int(11) DEFAULT NULL,
-  `invoice_layout_id` int(10) UNSIGNED NOT NULL,
-  `sale_invoice_layout_id` int(11) DEFAULT NULL,
-  `selling_price_group_id` int(11) DEFAULT NULL,
-  `print_receipt_on_invoice` tinyint(1) DEFAULT 1,
-  `receipt_printer_type` enum('browser','printer') NOT NULL DEFAULT 'browser',
-  `printer_id` int(11) DEFAULT NULL,
-  `mobile` varchar(191) DEFAULT NULL,
-  `alternate_number` varchar(191) DEFAULT NULL,
-  `email` varchar(191) DEFAULT NULL,
-  `website` varchar(191) DEFAULT NULL,
-  `featured_products` text DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `default_payment_accounts` text DEFAULT NULL,
-  `custom_field1` varchar(191) DEFAULT NULL,
-  `custom_field2` varchar(191) DEFAULT NULL,
-  `custom_field3` varchar(191) DEFAULT NULL,
-  `custom_field4` varchar(191) DEFAULT NULL,
-  `accounting_default_map` text DEFAULT NULL COMMENT 'Default transactions mapping of accounting module',
+DROP TABLE IF EXISTS `business_locations`;
+CREATE TABLE IF NOT EXISTS `business_locations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `landmark` text COLLATE utf8mb4_unicode_ci,
+  `country` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `state` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `zip_code` char(7) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `invoice_scheme_id` int UNSIGNED NOT NULL,
+  `sale_invoice_scheme_id` int DEFAULT NULL,
+  `invoice_layout_id` int UNSIGNED NOT NULL,
+  `sale_invoice_layout_id` int DEFAULT NULL,
+  `selling_price_group_id` int DEFAULT NULL,
+  `print_receipt_on_invoice` tinyint(1) DEFAULT '1',
+  `receipt_printer_type` enum('browser','printer') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'browser',
+  `printer_id` int DEFAULT NULL,
+  `mobile` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alternate_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `website` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `featured_products` text COLLATE utf8mb4_unicode_ci,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `default_payment_accounts` text COLLATE utf8mb4_unicode_ci,
+  `custom_field1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accounting_default_map` text COLLATE utf8mb4_unicode_ci COMMENT 'Default transactions mapping of accounting module',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `business_locations_business_id_index` (`business_id`),
+  KEY `business_locations_invoice_scheme_id_foreign` (`invoice_scheme_id`),
+  KEY `business_locations_invoice_layout_id_foreign` (`invoice_layout_id`),
+  KEY `business_locations_sale_invoice_layout_id_index` (`sale_invoice_layout_id`),
+  KEY `business_locations_selling_price_group_id_index` (`selling_price_group_id`),
+  KEY `business_locations_receipt_printer_type_index` (`receipt_printer_type`),
+  KEY `business_locations_printer_id_index` (`printer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `business_locations`
@@ -643,21 +720,25 @@ INSERT INTO `business_locations` (`id`, `business_id`, `location_id`, `name`, `l
 -- Table structure for table `button_categories`
 --
 
-CREATE TABLE `button_categories` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `accessory_type_name` varchar(191) NOT NULL,
-  `accessory_type_title` longtext DEFAULT NULL,
-  `accessory_type_description` longtext DEFAULT NULL,
-  `accessory_type_keyword` longtext DEFAULT NULL,
-  `accessory_type_status` int(11) DEFAULT NULL,
-  `top_accessory_type` int(11) DEFAULT NULL,
-  `level` int(11) DEFAULT NULL,
-  `folder` varchar(191) DEFAULT NULL,
-  `logo` varchar(191) DEFAULT NULL,
-  `accessory_id` bigint(20) UNSIGNED DEFAULT NULL,
+DROP TABLE IF EXISTS `button_categories`;
+CREATE TABLE IF NOT EXISTS `button_categories` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `accessory_type_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `accessory_type_title` longtext COLLATE utf8mb4_unicode_ci,
+  `accessory_type_description` longtext COLLATE utf8mb4_unicode_ci,
+  `accessory_type_keyword` longtext COLLATE utf8mb4_unicode_ci,
+  `accessory_type_status` int DEFAULT NULL,
+  `top_accessory_type` int DEFAULT NULL,
+  `level` int DEFAULT NULL,
+  `folder` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `logo` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accessory_id` bigint UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `button_categories_accessory_type_name_unique` (`accessory_type_name`),
+  KEY `button_categories_accessory_id_foreign` (`accessory_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `button_categories`
@@ -695,15 +776,18 @@ INSERT INTO `button_categories` (`id`, `accessory_type_name`, `accessory_type_ti
 -- Table structure for table `cash_denominations`
 --
 
-CREATE TABLE `cash_denominations` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `cash_denominations`;
+CREATE TABLE IF NOT EXISTS `cash_denominations` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
   `amount` decimal(22,4) NOT NULL,
-  `total_count` int(11) NOT NULL,
-  `model_type` varchar(191) NOT NULL,
-  `model_id` bigint(20) UNSIGNED NOT NULL,
+  `total_count` int NOT NULL,
+  `model_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cash_denominations_model_type_model_id_index` (`model_type`,`model_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -712,21 +796,26 @@ CREATE TABLE `cash_denominations` (
 -- Table structure for table `cash_registers`
 --
 
-CREATE TABLE `cash_registers` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(11) DEFAULT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
-  `status` enum('close','open') NOT NULL DEFAULT 'open',
+DROP TABLE IF EXISTS `cash_registers`;
+CREATE TABLE IF NOT EXISTS `cash_registers` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int DEFAULT NULL,
+  `user_id` int UNSIGNED DEFAULT NULL,
+  `status` enum('close','open') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'open',
   `closed_at` datetime DEFAULT NULL,
-  `closing_amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `total_card_slips` int(11) NOT NULL DEFAULT 0,
-  `total_cheques` int(11) NOT NULL DEFAULT 0,
-  `denominations` text DEFAULT NULL,
-  `closing_note` text DEFAULT NULL,
+  `closing_amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `total_card_slips` int NOT NULL DEFAULT '0',
+  `total_cheques` int NOT NULL DEFAULT '0',
+  `denominations` text COLLATE utf8mb4_unicode_ci,
+  `closing_note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cash_registers_business_id_foreign` (`business_id`),
+  KEY `cash_registers_user_id_foreign` (`user_id`),
+  KEY `cash_registers_location_id_index` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `cash_registers`
@@ -741,16 +830,22 @@ INSERT INTO `cash_registers` (`id`, `business_id`, `location_id`, `user_id`, `st
 -- Table structure for table `cash_register_transactions`
 --
 
-CREATE TABLE `cash_register_transactions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `cash_register_id` int(10) UNSIGNED NOT NULL,
-  `amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `pay_method` varchar(191) DEFAULT NULL,
-  `type` enum('debit','credit') NOT NULL,
-  `transaction_type` varchar(191) DEFAULT NULL,
-  `transaction_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `cash_register_transactions`;
+CREATE TABLE IF NOT EXISTS `cash_register_transactions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `cash_register_id` int UNSIGNED NOT NULL,
+  `amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `pay_method` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` enum('debit','credit') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cash_register_transactions_cash_register_id_foreign` (`cash_register_id`),
+  KEY `cash_register_transactions_transaction_id_index` (`transaction_id`),
+  KEY `cash_register_transactions_type_index` (`type`),
+  KEY `cash_register_transactions_transaction_type_index` (`transaction_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -759,20 +854,26 @@ CREATE TABLE `cash_register_transactions` (
 -- Table structure for table `categories`
 --
 
-CREATE TABLE `categories` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `short_code` varchar(191) DEFAULT NULL,
-  `parent_id` int(11) NOT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `woocommerce_cat_id` int(11) DEFAULT NULL,
-  `category_type` varchar(191) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `slug` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `short_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_id` int NOT NULL,
+  `created_by` int UNSIGNED NOT NULL,
+  `woocommerce_cat_id` int DEFAULT NULL,
+  `category_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `slug` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `categories_business_id_foreign` (`business_id`),
+  KEY `categories_created_by_foreign` (`created_by`),
+  KEY `categories_parent_id_index` (`parent_id`),
+  KEY `categories_woocommerce_cat_id_index` (`woocommerce_cat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -781,10 +882,12 @@ CREATE TABLE `categories` (
 -- Table structure for table `categorizables`
 --
 
-CREATE TABLE `categorizables` (
-  `category_id` int(11) NOT NULL,
-  `categorizable_type` varchar(191) NOT NULL,
-  `categorizable_id` bigint(20) UNSIGNED NOT NULL
+DROP TABLE IF EXISTS `categorizables`;
+CREATE TABLE IF NOT EXISTS `categorizables` (
+  `category_id` int NOT NULL,
+  `categorizable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `categorizable_id` bigint UNSIGNED NOT NULL,
+  KEY `categorizables_categorizable_type_categorizable_id_index` (`categorizable_type`,`categorizable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -793,69 +896,79 @@ CREATE TABLE `categorizables` (
 -- Table structure for table `contacts`
 --
 
-CREATE TABLE `contacts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `account_id` bigint(11) UNSIGNED NOT NULL,
-  `type` varchar(191) NOT NULL,
-  `supplier_business_name` varchar(191) DEFAULT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `prefix` varchar(191) DEFAULT NULL,
-  `first_name` varchar(191) DEFAULT NULL,
-  `middle_name` varchar(191) DEFAULT NULL,
-  `last_name` varchar(191) DEFAULT NULL,
-  `email` varchar(191) DEFAULT NULL,
-  `contact_id` varchar(191) DEFAULT NULL,
-  `contact_status` varchar(191) NOT NULL DEFAULT 'active',
-  `tax_number` varchar(191) DEFAULT NULL,
-  `city` varchar(191) DEFAULT NULL,
-  `state` varchar(191) DEFAULT NULL,
-  `country` varchar(191) DEFAULT NULL,
-  `address_line_1` text DEFAULT NULL,
-  `address_line_2` text DEFAULT NULL,
-  `zip_code` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `contacts`;
+CREATE TABLE IF NOT EXISTS `contacts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `account_id` bigint UNSIGNED NOT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `supplier_business_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `prefix` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `middle_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `tax_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address_line_1` text COLLATE utf8mb4_unicode_ci,
+  `address_line_2` text COLLATE utf8mb4_unicode_ci,
+  `zip_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dob` date DEFAULT NULL,
-  `mobile` varchar(191) NOT NULL,
-  `landline` varchar(191) DEFAULT NULL,
-  `alternate_number` varchar(191) DEFAULT NULL,
-  `pay_term_number` int(11) DEFAULT NULL,
-  `pay_term_type` enum('days','months') DEFAULT NULL,
+  `mobile` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `landline` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alternate_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pay_term_number` int DEFAULT NULL,
+  `pay_term_type` enum('days','months') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `credit_limit` decimal(22,4) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `converted_by` int(11) DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
+  `converted_by` int DEFAULT NULL,
   `converted_on` datetime DEFAULT NULL,
-  `balance` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `total_rp` int(11) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `total_rp_used` int(11) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `total_rp_expired` int(11) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `shipping_address` text DEFAULT NULL,
-  `shipping_custom_field_details` longtext DEFAULT NULL,
-  `is_export` tinyint(1) NOT NULL DEFAULT 0,
-  `export_custom_field_1` varchar(191) DEFAULT NULL,
-  `export_custom_field_2` varchar(191) DEFAULT NULL,
-  `export_custom_field_3` varchar(191) DEFAULT NULL,
-  `export_custom_field_4` varchar(191) DEFAULT NULL,
-  `export_custom_field_5` varchar(191) DEFAULT NULL,
-  `export_custom_field_6` varchar(191) DEFAULT NULL,
-  `position` varchar(191) DEFAULT NULL,
-  `customer_group_id` int(11) DEFAULT NULL,
-  `crm_source` varchar(191) DEFAULT NULL,
-  `crm_life_stage` varchar(191) DEFAULT NULL,
-  `custom_field1` varchar(191) DEFAULT NULL,
-  `custom_field2` varchar(191) DEFAULT NULL,
-  `custom_field3` varchar(191) DEFAULT NULL,
-  `custom_field4` varchar(191) DEFAULT NULL,
-  `custom_field5` varchar(191) DEFAULT NULL,
-  `custom_field6` varchar(191) DEFAULT NULL,
-  `custom_field7` varchar(191) DEFAULT NULL,
-  `custom_field8` varchar(191) DEFAULT NULL,
-  `custom_field9` varchar(191) DEFAULT NULL,
-  `custom_field10` varchar(191) DEFAULT NULL,
+  `balance` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `total_rp` int NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `total_rp_used` int NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `total_rp_expired` int NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `shipping_address` text COLLATE utf8mb4_unicode_ci,
+  `shipping_custom_field_details` longtext COLLATE utf8mb4_unicode_ci,
+  `is_export` tinyint(1) NOT NULL DEFAULT '0',
+  `export_custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `export_custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `export_custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `export_custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `export_custom_field_5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `export_custom_field_6` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `customer_group_id` int DEFAULT NULL,
+  `crm_source` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `crm_life_stage` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field6` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field7` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field8` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field9` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field10` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `contacts_business_id_foreign` (`business_id`),
+  KEY `contacts_created_by_foreign` (`created_by`),
+  KEY `contacts_type_index` (`type`),
+  KEY `contacts_contact_status_index` (`contact_status`),
+  KEY `contacts_crm_source_index` (`crm_source`),
+  KEY `contacts_crm_life_stage_index` (`crm_life_stage`),
+  KEY `contacts_converted_by_index` (`converted_by`),
+  KEY `account_id` (`account_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `contacts`
@@ -867,7 +980,8 @@ INSERT INTO `contacts` (`id`, `business_id`, `account_id`, `type`, `supplier_bus
 (34, 1, 6, 'customer', NULL, 'عبد الكريم', NULL, 'عبد الكريم', NULL, NULL, NULL, 'CO0001', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '66665656', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 0.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-01 23:24:33', '2024-03-01 23:24:33'),
 (35, 1, 6, 'supplier', NULL, 'مصطفى', NULL, 'مصطفى', NULL, NULL, NULL, 'CO0002', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '5556666', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 0.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-01 23:28:43', '2024-03-01 23:28:43'),
 (36, 1, 6, 'customer', NULL, 'فراس مصطفى', NULL, 'فراس مصطفى', NULL, NULL, NULL, 'CO0003', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '66699544441', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 500.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-02 01:20:35', '2024-03-02 01:50:08'),
-(37, 1, 3, 'customer', NULL, 'نينينين', NULL, 'نينينين', NULL, NULL, NULL, 'CO0004', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '55555', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 0.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-02 01:59:48', '2024-03-02 01:59:48');
+(37, 1, 3, 'customer', NULL, 'نينينين', NULL, 'نينينين', NULL, NULL, NULL, 'CO0004', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '55555', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 0.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-02 01:59:48', '2024-03-02 01:59:48'),
+(38, 1, 11, 'customer', NULL, 'سعدون', NULL, 'سعدون', NULL, NULL, NULL, 'CO0005', 'active', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '56456465465', NULL, NULL, NULL, NULL, 10000.0000, 1, NULL, NULL, 0.0000, 0, 0, 0, 0, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-08 21:49:30', '2024-03-08 21:49:30');
 
 -- --------------------------------------------------------
 
@@ -875,20 +989,26 @@ INSERT INTO `contacts` (`id`, `business_id`, `account_id`, `type`, `supplier_bus
 -- Table structure for table `crm_call_logs`
 --
 
-CREATE TABLE `crm_call_logs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `call_type` varchar(191) DEFAULT NULL,
-  `mobile_number` varchar(191) NOT NULL,
-  `mobile_name` varchar(191) DEFAULT NULL,
-  `contact_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `crm_call_logs`;
+CREATE TABLE IF NOT EXISTS `crm_call_logs` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `user_id` int DEFAULT NULL,
+  `call_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mobile_number` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mobile_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_id` int DEFAULT NULL,
   `start_time` datetime DEFAULT NULL,
   `end_time` datetime DEFAULT NULL,
-  `duration` int(11) DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `duration` int DEFAULT NULL,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_call_logs_business_id_index` (`business_id`),
+  KEY `crm_call_logs_user_id_index` (`user_id`),
+  KEY `crm_call_logs_contact_id_index` (`contact_id`),
+  KEY `crm_call_logs_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -897,20 +1017,24 @@ CREATE TABLE `crm_call_logs` (
 -- Table structure for table `crm_campaigns`
 --
 
-CREATE TABLE `crm_campaigns` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `campaign_type` enum('sms','email') NOT NULL DEFAULT 'email',
-  `subject` varchar(191) DEFAULT NULL,
-  `email_body` text DEFAULT NULL,
-  `sms_body` text DEFAULT NULL,
+DROP TABLE IF EXISTS `crm_campaigns`;
+CREATE TABLE IF NOT EXISTS `crm_campaigns` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `campaign_type` enum('sms','email') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'email',
+  `subject` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_body` text COLLATE utf8mb4_unicode_ci,
+  `sms_body` text COLLATE utf8mb4_unicode_ci,
   `sent_on` datetime DEFAULT NULL,
-  `contact_ids` text NOT NULL,
-  `additional_info` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `contact_ids` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `additional_info` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_campaigns_business_id_foreign` (`business_id`),
+  KEY `crm_campaigns_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -919,13 +1043,15 @@ CREATE TABLE `crm_campaigns` (
 -- Table structure for table `crm_contact_person_commissions`
 --
 
-CREATE TABLE `crm_contact_person_commissions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `contact_person_id` int(11) NOT NULL,
-  `transaction_id` int(11) DEFAULT NULL,
-  `commission_amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `crm_contact_person_commissions`;
+CREATE TABLE IF NOT EXISTS `crm_contact_person_commissions` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_person_id` int NOT NULL,
+  `transaction_id` int DEFAULT NULL,
+  `commission_amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -934,9 +1060,10 @@ CREATE TABLE `crm_contact_person_commissions` (
 -- Table structure for table `crm_followup_invoices`
 --
 
-CREATE TABLE `crm_followup_invoices` (
-  `follow_up_id` int(11) NOT NULL,
-  `transaction_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `crm_followup_invoices`;
+CREATE TABLE IF NOT EXISTS `crm_followup_invoices` (
+  `follow_up_id` int NOT NULL,
+  `transaction_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -945,10 +1072,14 @@ CREATE TABLE `crm_followup_invoices` (
 -- Table structure for table `crm_lead_users`
 --
 
-CREATE TABLE `crm_lead_users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `contact_id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `crm_lead_users`;
+CREATE TABLE IF NOT EXISTS `crm_lead_users` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `contact_id` int UNSIGNED NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_lead_users_user_id_index` (`user_id`),
+  KEY `crm_lead_users_contact_id_index` (`contact_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -957,16 +1088,18 @@ CREATE TABLE `crm_lead_users` (
 -- Table structure for table `crm_marketplaces`
 --
 
-CREATE TABLE `crm_marketplaces` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `marketplace` varchar(191) DEFAULT NULL,
-  `site_key` varchar(191) DEFAULT NULL,
-  `site_id` varchar(191) DEFAULT NULL,
-  `assigned_users` text DEFAULT NULL,
-  `crm_source_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `crm_marketplaces`;
+CREATE TABLE IF NOT EXISTS `crm_marketplaces` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `marketplace` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `site_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `site_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `assigned_users` text COLLATE utf8mb4_unicode_ci,
+  `crm_source_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -975,17 +1108,22 @@ CREATE TABLE `crm_marketplaces` (
 -- Table structure for table `crm_proposals`
 --
 
-CREATE TABLE `crm_proposals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `contact_id` int(10) UNSIGNED NOT NULL,
-  `subject` text NOT NULL,
-  `body` longtext NOT NULL,
-  `cc` text DEFAULT NULL,
-  `bcc` text DEFAULT NULL,
-  `sent_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `crm_proposals`;
+CREATE TABLE IF NOT EXISTS `crm_proposals` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `contact_id` int UNSIGNED NOT NULL,
+  `subject` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `body` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cc` text COLLATE utf8mb4_unicode_ci,
+  `bcc` text COLLATE utf8mb4_unicode_ci,
+  `sent_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_proposals_business_id_foreign` (`business_id`),
+  KEY `crm_proposals_contact_id_foreign` (`contact_id`),
+  KEY `crm_proposals_sent_by_index` (`sent_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -994,16 +1132,20 @@ CREATE TABLE `crm_proposals` (
 -- Table structure for table `crm_proposal_templates`
 --
 
-CREATE TABLE `crm_proposal_templates` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `subject` text NOT NULL,
-  `body` longtext NOT NULL,
-  `cc` text DEFAULT NULL,
-  `bcc` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `crm_proposal_templates`;
+CREATE TABLE IF NOT EXISTS `crm_proposal_templates` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `subject` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `body` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cc` text COLLATE utf8mb4_unicode_ci,
+  `bcc` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_proposal_templates_business_id_foreign` (`business_id`),
+  KEY `crm_proposal_templates_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1012,29 +1154,36 @@ CREATE TABLE `crm_proposal_templates` (
 -- Table structure for table `crm_schedules`
 --
 
-CREATE TABLE `crm_schedules` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `contact_id` int(10) DEFAULT NULL,
-  `title` varchar(191) NOT NULL,
-  `status` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `crm_schedules`;
+CREATE TABLE IF NOT EXISTS `crm_schedules` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `contact_id` int DEFAULT NULL,
+  `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `start_datetime` datetime DEFAULT NULL,
   `end_datetime` datetime DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `schedule_type` enum('call','sms','meeting','email') NOT NULL DEFAULT 'email',
-  `followup_category_id` int(11) DEFAULT NULL,
-  `allow_notification` tinyint(1) NOT NULL DEFAULT 1,
-  `notify_via` text DEFAULT NULL,
-  `notify_before` int(11) DEFAULT NULL,
-  `notify_type` enum('minute','hour','day') NOT NULL DEFAULT 'hour',
-  `created_by` int(11) NOT NULL,
-  `is_recursive` tinyint(1) NOT NULL DEFAULT 0,
-  `recursion_days` int(11) DEFAULT NULL,
-  `followup_additional_info` text DEFAULT NULL,
-  `follow_up_by` varchar(191) DEFAULT NULL,
-  `follow_up_by_value` varchar(191) DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `schedule_type` enum('call','sms','meeting','email') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'email',
+  `followup_category_id` int DEFAULT NULL,
+  `allow_notification` tinyint(1) NOT NULL DEFAULT '1',
+  `notify_via` text COLLATE utf8mb4_unicode_ci,
+  `notify_before` int DEFAULT NULL,
+  `notify_type` enum('minute','hour','day') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'hour',
+  `created_by` int NOT NULL,
+  `is_recursive` tinyint(1) NOT NULL DEFAULT '0',
+  `recursion_days` int DEFAULT NULL,
+  `followup_additional_info` text COLLATE utf8mb4_unicode_ci,
+  `follow_up_by` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `follow_up_by_value` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_schedules_created_by_index` (`created_by`),
+  KEY `crm_schedules_business_id_index` (`business_id`),
+  KEY `crm_schedules_contact_id_index` (`contact_id`),
+  KEY `crm_schedules_schedule_type_index` (`schedule_type`),
+  KEY `crm_schedules_notify_type_index` (`notify_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1043,17 +1192,21 @@ CREATE TABLE `crm_schedules` (
 -- Table structure for table `crm_schedule_logs`
 --
 
-CREATE TABLE `crm_schedule_logs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `schedule_id` bigint(20) UNSIGNED NOT NULL,
-  `log_type` enum('call','sms','meeting','email') NOT NULL DEFAULT 'email',
+DROP TABLE IF EXISTS `crm_schedule_logs`;
+CREATE TABLE IF NOT EXISTS `crm_schedule_logs` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `schedule_id` bigint UNSIGNED NOT NULL,
+  `log_type` enum('call','sms','meeting','email') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'email',
   `start_datetime` datetime NOT NULL,
   `end_datetime` datetime NOT NULL,
-  `subject` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `subject` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_schedule_logs_schedule_id_foreign` (`schedule_id`),
+  KEY `crm_schedule_logs_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1062,12 +1215,16 @@ CREATE TABLE `crm_schedule_logs` (
 -- Table structure for table `crm_schedule_users`
 --
 
-CREATE TABLE `crm_schedule_users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `schedule_id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `crm_schedule_users`;
+CREATE TABLE IF NOT EXISTS `crm_schedule_users` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `schedule_id` bigint UNSIGNED NOT NULL,
+  `user_id` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_schedule_users_schedule_id_foreign` (`schedule_id`),
+  KEY `crm_schedule_users_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1076,17 +1233,19 @@ CREATE TABLE `crm_schedule_users` (
 -- Table structure for table `currencies`
 --
 
-CREATE TABLE `currencies` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `country` varchar(100) NOT NULL,
-  `currency` varchar(100) NOT NULL,
-  `code` varchar(25) NOT NULL,
-  `symbol` varchar(25) NOT NULL,
-  `thousand_separator` varchar(10) NOT NULL,
-  `decimal_separator` varchar(10) NOT NULL,
+DROP TABLE IF EXISTS `currencies`;
+CREATE TABLE IF NOT EXISTS `currencies` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `country` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `symbol` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `thousand_separator` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `decimal_separator` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `currencies`
@@ -1241,16 +1400,22 @@ INSERT INTO `currencies` (`id`, `country`, `currency`, `code`, `symbol`, `thousa
 -- Table structure for table `customer_groups`
 --
 
-CREATE TABLE `customer_groups` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `customer_groups`;
+CREATE TABLE IF NOT EXISTS `customer_groups` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` double(5,2) NOT NULL,
-  `price_calculation_type` varchar(191) DEFAULT 'percentage',
-  `selling_price_group_id` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+  `price_calculation_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'percentage',
+  `selling_price_group_id` int DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `customer_groups_business_id_foreign` (`business_id`),
+  KEY `customer_groups_created_by_index` (`created_by`),
+  KEY `customer_groups_price_calculation_type_index` (`price_calculation_type`),
+  KEY `customer_groups_selling_price_group_id_index` (`selling_price_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1259,15 +1424,18 @@ CREATE TABLE `customer_groups` (
 -- Table structure for table `dashboard_configurations`
 --
 
-CREATE TABLE `dashboard_configurations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `color` varchar(191) NOT NULL,
-  `configuration` text DEFAULT NULL,
+DROP TABLE IF EXISTS `dashboard_configurations`;
+CREATE TABLE IF NOT EXISTS `dashboard_configurations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `created_by` int NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `configuration` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dashboard_configurations_business_id_foreign` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1276,23 +1444,31 @@ CREATE TABLE `dashboard_configurations` (
 -- Table structure for table `discounts`
 --
 
-CREATE TABLE `discounts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `brand_id` int(11) DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL,
-  `location_id` int(11) DEFAULT NULL,
-  `priority` int(11) DEFAULT NULL,
-  `discount_type` varchar(191) DEFAULT NULL,
-  `discount_amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `discounts`;
+CREATE TABLE IF NOT EXISTS `discounts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int NOT NULL,
+  `brand_id` int DEFAULT NULL,
+  `category_id` int DEFAULT NULL,
+  `location_id` int DEFAULT NULL,
+  `priority` int DEFAULT NULL,
+  `discount_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount_amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `starts_at` datetime DEFAULT NULL,
   `ends_at` datetime DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
-  `spg` varchar(100) DEFAULT NULL COMMENT 'Applicable in specified selling price group only. Use of applicable_in_spg column is discontinued',
-  `applicable_in_cg` tinyint(1) DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `spg` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Applicable in specified selling price group only. Use of applicable_in_spg column is discontinued',
+  `applicable_in_cg` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `discounts_business_id_index` (`business_id`),
+  KEY `discounts_brand_id_index` (`brand_id`),
+  KEY `discounts_category_id_index` (`category_id`),
+  KEY `discounts_location_id_index` (`location_id`),
+  KEY `discounts_priority_index` (`priority`),
+  KEY `discounts_spg_index` (`spg`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1301,9 +1477,12 @@ CREATE TABLE `discounts` (
 -- Table structure for table `discount_variations`
 --
 
-CREATE TABLE `discount_variations` (
-  `discount_id` int(11) NOT NULL,
-  `variation_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `discount_variations`;
+CREATE TABLE IF NOT EXISTS `discount_variations` (
+  `discount_id` int NOT NULL,
+  `variation_id` int NOT NULL,
+  KEY `discount_variations_discount_id_index` (`discount_id`),
+  KEY `discount_variations_variation_id_index` (`variation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1312,17 +1491,22 @@ CREATE TABLE `discount_variations` (
 -- Table structure for table `document_and_notes`
 --
 
-CREATE TABLE `document_and_notes` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `notable_id` int(11) NOT NULL,
-  `notable_type` varchar(191) NOT NULL,
-  `heading` text DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `is_private` tinyint(1) NOT NULL DEFAULT 0,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `document_and_notes`;
+CREATE TABLE IF NOT EXISTS `document_and_notes` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `notable_id` int NOT NULL,
+  `notable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `heading` text COLLATE utf8mb4_unicode_ci,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `is_private` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `document_and_notes_business_id_index` (`business_id`),
+  KEY `document_and_notes_notable_id_index` (`notable_id`),
+  KEY `document_and_notes_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1331,16 +1515,19 @@ CREATE TABLE `document_and_notes` (
 -- Table structure for table `essentials_allowances_and_deductions`
 --
 
-CREATE TABLE `essentials_allowances_and_deductions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `description` varchar(191) NOT NULL,
-  `type` enum('allowance','deduction') NOT NULL,
+DROP TABLE IF EXISTS `essentials_allowances_and_deductions`;
+CREATE TABLE IF NOT EXISTS `essentials_allowances_and_deductions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('allowance','deduction') COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` decimal(22,4) NOT NULL,
-  `amount_type` enum('fixed','percent') NOT NULL,
+  `amount_type` enum('fixed','percent') COLLATE utf8mb4_unicode_ci NOT NULL,
   `applicable_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_allowances_and_deductions_business_id_index` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1349,20 +1536,25 @@ CREATE TABLE `essentials_allowances_and_deductions` (
 -- Table structure for table `essentials_attendances`
 --
 
-CREATE TABLE `essentials_attendances` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_attendances`;
+CREATE TABLE IF NOT EXISTS `essentials_attendances` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `business_id` int NOT NULL,
   `clock_in_time` datetime DEFAULT NULL,
   `clock_out_time` datetime DEFAULT NULL,
-  `essentials_shift_id` int(11) DEFAULT NULL,
-  `ip_address` varchar(191) DEFAULT NULL,
-  `clock_in_note` text DEFAULT NULL,
-  `clock_out_note` text DEFAULT NULL,
-  `clock_in_location` text DEFAULT NULL,
-  `clock_out_location` text DEFAULT NULL,
+  `essentials_shift_id` int DEFAULT NULL,
+  `ip_address` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `clock_in_note` text COLLATE utf8mb4_unicode_ci,
+  `clock_out_note` text COLLATE utf8mb4_unicode_ci,
+  `clock_in_location` text COLLATE utf8mb4_unicode_ci,
+  `clock_out_location` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_attendances_user_id_index` (`user_id`),
+  KEY `essentials_attendances_business_id_index` (`business_id`),
+  KEY `essentials_attendances_essentials_shift_id_index` (`essentials_shift_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1371,15 +1563,17 @@ CREATE TABLE `essentials_attendances` (
 -- Table structure for table `essentials_documents`
 --
 
-CREATE TABLE `essentials_documents` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `type` varchar(191) DEFAULT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `essentials_documents`;
+CREATE TABLE IF NOT EXISTS `essentials_documents` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1388,13 +1582,17 @@ CREATE TABLE `essentials_documents` (
 -- Table structure for table `essentials_document_shares`
 --
 
-CREATE TABLE `essentials_document_shares` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `document_id` int(11) NOT NULL,
-  `value_type` enum('user','role') NOT NULL,
-  `value` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_document_shares`;
+CREATE TABLE IF NOT EXISTS `essentials_document_shares` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `document_id` int NOT NULL,
+  `value_type` enum('user','role') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_document_shares_document_id_index` (`document_id`),
+  KEY `essentials_document_shares_value_type_index` (`value_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1403,16 +1601,20 @@ CREATE TABLE `essentials_document_shares` (
 -- Table structure for table `essentials_holidays`
 --
 
-CREATE TABLE `essentials_holidays` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `essentials_holidays`;
+CREATE TABLE IF NOT EXISTS `essentials_holidays` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `location_id` int(11) DEFAULT NULL,
-  `note` text DEFAULT NULL,
+  `business_id` int NOT NULL,
+  `location_id` int DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_holidays_business_id_index` (`business_id`),
+  KEY `essentials_holidays_location_id_index` (`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1421,18 +1623,23 @@ CREATE TABLE `essentials_holidays` (
 -- Table structure for table `essentials_kb`
 --
 
-CREATE TABLE `essentials_kb` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` bigint(20) UNSIGNED NOT NULL,
-  `title` varchar(191) NOT NULL,
-  `content` longtext DEFAULT NULL,
-  `status` varchar(191) NOT NULL,
-  `kb_type` varchar(191) NOT NULL,
-  `parent_id` bigint(20) UNSIGNED DEFAULT NULL COMMENT 'id from essentials_kb table',
-  `share_with` varchar(191) DEFAULT NULL COMMENT 'public, private, only_with',
-  `created_by` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `essentials_kb`;
+CREATE TABLE IF NOT EXISTS `essentials_kb` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` bigint UNSIGNED NOT NULL,
+  `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kb_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `parent_id` bigint UNSIGNED DEFAULT NULL COMMENT 'id from essentials_kb table',
+  `share_with` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'public, private, only_with',
+  `created_by` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_kb_business_id_index` (`business_id`),
+  KEY `essentials_kb_parent_id_index` (`parent_id`),
+  KEY `essentials_kb_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1441,10 +1648,14 @@ CREATE TABLE `essentials_kb` (
 -- Table structure for table `essentials_kb_users`
 --
 
-CREATE TABLE `essentials_kb_users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `kb_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `essentials_kb_users`;
+CREATE TABLE IF NOT EXISTS `essentials_kb_users` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `kb_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_kb_users_kb_id_index` (`kb_id`),
+  KEY `essentials_kb_users_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1453,19 +1664,24 @@ CREATE TABLE `essentials_kb_users` (
 -- Table structure for table `essentials_leaves`
 --
 
-CREATE TABLE `essentials_leaves` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `essentials_leave_type_id` int(11) DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_leaves`;
+CREATE TABLE IF NOT EXISTS `essentials_leaves` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `essentials_leave_type_id` int DEFAULT NULL,
+  `business_id` int NOT NULL,
+  `user_id` int NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `ref_no` varchar(191) DEFAULT NULL,
-  `status` enum('pending','approved','cancelled') DEFAULT NULL,
-  `reason` text DEFAULT NULL,
-  `status_note` text DEFAULT NULL,
+  `ref_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('pending','approved','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reason` text COLLATE utf8mb4_unicode_ci,
+  `status_note` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_leaves_essentials_leave_type_id_index` (`essentials_leave_type_id`),
+  KEY `essentials_leaves_business_id_index` (`business_id`),
+  KEY `essentials_leaves_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1474,14 +1690,17 @@ CREATE TABLE `essentials_leaves` (
 -- Table structure for table `essentials_leave_types`
 --
 
-CREATE TABLE `essentials_leave_types` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `leave_type` varchar(191) NOT NULL,
-  `max_leave_count` int(11) DEFAULT NULL,
-  `leave_count_interval` enum('month','year') DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_leave_types`;
+CREATE TABLE IF NOT EXISTS `essentials_leave_types` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `leave_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `max_leave_count` int DEFAULT NULL,
+  `leave_count_interval` enum('month','year') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_leave_types_business_id_index` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1490,14 +1709,19 @@ CREATE TABLE `essentials_leave_types` (
 -- Table structure for table `essentials_messages`
 --
 
-CREATE TABLE `essentials_messages` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `message` text NOT NULL,
-  `location_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `essentials_messages`;
+CREATE TABLE IF NOT EXISTS `essentials_messages` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_messages_business_id_index` (`business_id`),
+  KEY `essentials_messages_user_id_index` (`user_id`),
+  KEY `essentials_messages_location_id_index` (`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1506,17 +1730,19 @@ CREATE TABLE `essentials_messages` (
 -- Table structure for table `essentials_payroll_groups`
 --
 
-CREATE TABLE `essentials_payroll_groups` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `location_id` int(11) DEFAULT NULL COMMENT 'payroll for work location',
-  `name` varchar(191) NOT NULL,
-  `status` varchar(191) NOT NULL,
-  `payment_status` varchar(191) NOT NULL DEFAULT 'due',
-  `gross_total` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_payroll_groups`;
+CREATE TABLE IF NOT EXISTS `essentials_payroll_groups` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `location_id` int DEFAULT NULL COMMENT 'payroll for work location',
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'due',
+  `gross_total` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1525,9 +1751,11 @@ CREATE TABLE `essentials_payroll_groups` (
 -- Table structure for table `essentials_payroll_group_transactions`
 --
 
-CREATE TABLE `essentials_payroll_group_transactions` (
-  `payroll_group_id` bigint(20) UNSIGNED NOT NULL,
-  `transaction_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `essentials_payroll_group_transactions`;
+CREATE TABLE IF NOT EXISTS `essentials_payroll_group_transactions` (
+  `payroll_group_id` bigint UNSIGNED NOT NULL,
+  `transaction_id` int NOT NULL,
+  KEY `essentials_payroll_group_transactions_payroll_group_id_foreign` (`payroll_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1536,17 +1764,21 @@ CREATE TABLE `essentials_payroll_group_transactions` (
 -- Table structure for table `essentials_reminders`
 --
 
-CREATE TABLE `essentials_reminders` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `essentials_reminders`;
+CREATE TABLE IF NOT EXISTS `essentials_reminders` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` date NOT NULL,
   `time` time NOT NULL,
   `end_time` time DEFAULT NULL,
-  `repeat` enum('one_time','every_day','every_week','every_month') NOT NULL,
+  `repeat` enum('one_time','every_day','every_week','every_month') COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_reminders_business_id_index` (`business_id`),
+  KEY `essentials_reminders_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1555,18 +1787,22 @@ CREATE TABLE `essentials_reminders` (
 -- Table structure for table `essentials_shifts`
 --
 
-CREATE TABLE `essentials_shifts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `type` enum('fixed_shift','flexible_shift') NOT NULL DEFAULT 'fixed_shift',
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_shifts`;
+CREATE TABLE IF NOT EXISTS `essentials_shifts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('fixed_shift','flexible_shift') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'fixed_shift',
+  `business_id` int NOT NULL,
   `start_time` time DEFAULT NULL,
   `end_time` time DEFAULT NULL,
-  `is_allowed_auto_clockout` tinyint(1) NOT NULL DEFAULT 0,
+  `is_allowed_auto_clockout` tinyint(1) NOT NULL DEFAULT '0',
   `auto_clockout_time` time DEFAULT NULL,
-  `holidays` text DEFAULT NULL,
+  `holidays` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_shifts_type_index` (`type`),
+  KEY `essentials_shifts_business_id_index` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1575,9 +1811,10 @@ CREATE TABLE `essentials_shifts` (
 -- Table structure for table `essentials_todos_users`
 --
 
-CREATE TABLE `essentials_todos_users` (
-  `todo_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `essentials_todos_users`;
+CREATE TABLE IF NOT EXISTS `essentials_todos_users` (
+  `todo_id` int NOT NULL,
+  `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1586,13 +1823,17 @@ CREATE TABLE `essentials_todos_users` (
 -- Table structure for table `essentials_todo_comments`
 --
 
-CREATE TABLE `essentials_todo_comments` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `comment` text NOT NULL,
-  `task_id` int(11) NOT NULL,
-  `comment_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_todo_comments`;
+CREATE TABLE IF NOT EXISTS `essentials_todo_comments` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `task_id` int NOT NULL,
+  `comment_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_todo_comments_task_id_index` (`task_id`),
+  KEY `essentials_todo_comments_comment_by_index` (`comment_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1601,20 +1842,27 @@ CREATE TABLE `essentials_todo_comments` (
 -- Table structure for table `essentials_to_dos`
 --
 
-CREATE TABLE `essentials_to_dos` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `task` text NOT NULL,
+DROP TABLE IF EXISTS `essentials_to_dos`;
+CREATE TABLE IF NOT EXISTS `essentials_to_dos` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `task` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
-  `task_id` varchar(191) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `status` varchar(191) DEFAULT NULL,
-  `estimated_hours` varchar(191) DEFAULT NULL,
-  `priority` varchar(191) DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
+  `task_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estimated_hours` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `priority` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_to_dos_status_index` (`status`),
+  KEY `essentials_to_dos_priority_index` (`priority`),
+  KEY `essentials_to_dos_created_by_index` (`created_by`),
+  KEY `essentials_to_dos_business_id_index` (`business_id`),
+  KEY `essentials_to_dos_task_id_index` (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1623,9 +1871,12 @@ CREATE TABLE `essentials_to_dos` (
 -- Table structure for table `essentials_user_allowance_and_deductions`
 --
 
-CREATE TABLE `essentials_user_allowance_and_deductions` (
-  `user_id` int(11) NOT NULL,
-  `allowance_deduction_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `essentials_user_allowance_and_deductions`;
+CREATE TABLE IF NOT EXISTS `essentials_user_allowance_and_deductions` (
+  `user_id` int NOT NULL,
+  `allowance_deduction_id` int NOT NULL,
+  KEY `essentials_user_allowance_and_deductions_user_id_index` (`user_id`),
+  KEY `allow_deduct_index` (`allowance_deduction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1634,14 +1885,16 @@ CREATE TABLE `essentials_user_allowance_and_deductions` (
 -- Table structure for table `essentials_user_sales_targets`
 --
 
-CREATE TABLE `essentials_user_sales_targets` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `target_start` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `target_end` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `commission_percent` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `essentials_user_sales_targets`;
+CREATE TABLE IF NOT EXISTS `essentials_user_sales_targets` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `target_start` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `target_end` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `commission_percent` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1650,14 +1903,18 @@ CREATE TABLE `essentials_user_sales_targets` (
 -- Table structure for table `essentials_user_shifts`
 --
 
-CREATE TABLE `essentials_user_shifts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `essentials_shift_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `essentials_user_shifts`;
+CREATE TABLE IF NOT EXISTS `essentials_user_shifts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `essentials_shift_id` int NOT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `essentials_user_shifts_user_id_index` (`user_id`),
+  KEY `essentials_user_shifts_essentials_shift_id_index` (`essentials_shift_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1666,17 +1923,20 @@ CREATE TABLE `essentials_user_shifts` (
 -- Table structure for table `expense_categories`
 --
 
-CREATE TABLE `expense_categories` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `account_id` int(11) NOT NULL,
-  `code` varchar(191) DEFAULT NULL,
-  `parent_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `expense_categories`;
+CREATE TABLE IF NOT EXISTS `expense_categories` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `account_id` int NOT NULL,
+  `code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_id` int DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `expense_categories_business_id_foreign` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `expense_categories`
@@ -1692,16 +1952,20 @@ INSERT INTO `expense_categories` (`id`, `name`, `business_id`, `account_id`, `co
 -- Table structure for table `financial_statements`
 --
 
-CREATE TABLE `financial_statements` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name_ar` varchar(191) NOT NULL,
-  `name_en` varchar(191) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `parent_id` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `financial_statements`;
+CREATE TABLE IF NOT EXISTS `financial_statements` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name_ar` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_en` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `parent_id` int DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `financial_statements_business_id_foreign` (`business_id`),
+  KEY `financial_statements_created_by_foreign` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `financial_statements`
@@ -1718,17 +1982,19 @@ INSERT INTO `financial_statements` (`id`, `name_ar`, `name_en`, `business_id`, `
 -- Table structure for table `global_currencies`
 --
 
-CREATE TABLE `global_currencies` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `global_currency_name` varchar(191) DEFAULT NULL,
-  `global_currency_value` decimal(18,9) NOT NULL DEFAULT 6.000000000,
-  `local_currency_name` varchar(191) DEFAULT NULL,
-  `local_currency_value` decimal(18,9) DEFAULT 6.000000000,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `global_currencies`;
+CREATE TABLE IF NOT EXISTS `global_currencies` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `global_currency_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `global_currency_value` decimal(18,9) NOT NULL DEFAULT '6.000000000',
+  `local_currency_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `local_currency_value` decimal(18,9) DEFAULT '6.000000000',
+  `created_by` int UNSIGNED NOT NULL,
+  `business_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `global_currencies`
@@ -1743,9 +2009,12 @@ INSERT INTO `global_currencies` (`id`, `global_currency_name`, `global_currency_
 -- Table structure for table `group_sub_taxes`
 --
 
-CREATE TABLE `group_sub_taxes` (
-  `group_tax_id` int(10) UNSIGNED NOT NULL,
-  `tax_id` int(10) UNSIGNED NOT NULL
+DROP TABLE IF EXISTS `group_sub_taxes`;
+CREATE TABLE IF NOT EXISTS `group_sub_taxes` (
+  `group_tax_id` int UNSIGNED NOT NULL,
+  `tax_id` int UNSIGNED NOT NULL,
+  KEY `group_sub_taxes_group_tax_id_foreign` (`group_tax_id`),
+  KEY `group_sub_taxes_tax_id_foreign` (`tax_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1754,93 +2023,96 @@ CREATE TABLE `group_sub_taxes` (
 -- Table structure for table `invoice_layouts`
 --
 
-CREATE TABLE `invoice_layouts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `header_text` text DEFAULT NULL,
-  `invoice_no_prefix` varchar(191) DEFAULT NULL,
-  `quotation_no_prefix` varchar(191) DEFAULT NULL,
-  `invoice_heading` varchar(191) DEFAULT NULL,
-  `sub_heading_line1` varchar(191) DEFAULT NULL,
-  `sub_heading_line2` varchar(191) DEFAULT NULL,
-  `sub_heading_line3` varchar(191) DEFAULT NULL,
-  `sub_heading_line4` varchar(191) DEFAULT NULL,
-  `sub_heading_line5` varchar(191) DEFAULT NULL,
-  `invoice_heading_not_paid` varchar(191) DEFAULT NULL,
-  `invoice_heading_paid` varchar(191) DEFAULT NULL,
-  `quotation_heading` varchar(191) DEFAULT NULL,
-  `sub_total_label` varchar(191) DEFAULT NULL,
-  `discount_label` varchar(191) DEFAULT NULL,
-  `tax_label` varchar(191) DEFAULT NULL,
-  `total_label` varchar(191) DEFAULT NULL,
-  `round_off_label` varchar(191) DEFAULT NULL,
-  `total_due_label` varchar(191) DEFAULT NULL,
-  `paid_label` varchar(191) DEFAULT NULL,
-  `show_client_id` tinyint(1) NOT NULL DEFAULT 0,
-  `client_id_label` varchar(191) DEFAULT NULL,
-  `client_tax_label` varchar(191) DEFAULT NULL,
-  `date_label` varchar(191) DEFAULT NULL,
-  `date_time_format` varchar(191) DEFAULT NULL,
-  `show_time` tinyint(1) NOT NULL DEFAULT 1,
-  `show_brand` tinyint(1) NOT NULL DEFAULT 0,
-  `show_sku` tinyint(1) NOT NULL DEFAULT 1,
-  `show_cat_code` tinyint(1) NOT NULL DEFAULT 1,
-  `show_expiry` tinyint(1) NOT NULL DEFAULT 0,
-  `show_lot` tinyint(1) NOT NULL DEFAULT 0,
-  `show_image` tinyint(1) NOT NULL DEFAULT 0,
-  `show_sale_description` tinyint(1) NOT NULL DEFAULT 0,
-  `sales_person_label` varchar(191) DEFAULT NULL,
-  `show_sales_person` tinyint(1) NOT NULL DEFAULT 0,
-  `table_product_label` varchar(191) DEFAULT NULL,
-  `table_qty_label` varchar(191) DEFAULT NULL,
-  `table_unit_price_label` varchar(191) DEFAULT NULL,
-  `table_subtotal_label` varchar(191) DEFAULT NULL,
-  `cat_code_label` varchar(191) DEFAULT NULL,
-  `logo` varchar(191) DEFAULT NULL,
-  `show_logo` tinyint(1) NOT NULL DEFAULT 0,
-  `show_business_name` tinyint(1) NOT NULL DEFAULT 0,
-  `show_location_name` tinyint(1) NOT NULL DEFAULT 1,
-  `show_landmark` tinyint(1) NOT NULL DEFAULT 1,
-  `show_city` tinyint(1) NOT NULL DEFAULT 1,
-  `show_state` tinyint(1) NOT NULL DEFAULT 1,
-  `show_zip_code` tinyint(1) NOT NULL DEFAULT 1,
-  `show_country` tinyint(1) NOT NULL DEFAULT 1,
-  `show_mobile_number` tinyint(1) NOT NULL DEFAULT 1,
-  `show_alternate_number` tinyint(1) NOT NULL DEFAULT 0,
-  `show_email` tinyint(1) NOT NULL DEFAULT 0,
-  `show_tax_1` tinyint(1) NOT NULL DEFAULT 1,
-  `show_tax_2` tinyint(1) NOT NULL DEFAULT 0,
-  `show_barcode` tinyint(1) NOT NULL DEFAULT 0,
-  `show_payments` tinyint(1) NOT NULL DEFAULT 0,
-  `show_customer` tinyint(1) NOT NULL DEFAULT 0,
-  `customer_label` varchar(191) DEFAULT NULL,
-  `commission_agent_label` varchar(191) DEFAULT NULL,
-  `show_commission_agent` tinyint(1) NOT NULL DEFAULT 0,
-  `show_reward_point` tinyint(1) NOT NULL DEFAULT 0,
-  `highlight_color` varchar(10) DEFAULT NULL,
-  `footer_text` text DEFAULT NULL,
-  `module_info` text DEFAULT NULL,
-  `common_settings` text DEFAULT NULL,
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `show_letter_head` tinyint(1) NOT NULL DEFAULT 0,
-  `letter_head` varchar(191) DEFAULT NULL,
-  `show_qr_code` tinyint(1) NOT NULL DEFAULT 0,
-  `qr_code_fields` text DEFAULT NULL,
-  `design` varchar(190) DEFAULT 'classic',
-  `cn_heading` varchar(191) DEFAULT NULL COMMENT 'cn = credit note',
-  `cn_no_label` varchar(191) DEFAULT NULL,
-  `cn_amount_label` varchar(191) DEFAULT NULL,
-  `table_tax_headings` text DEFAULT NULL,
-  `show_previous_bal` tinyint(1) NOT NULL DEFAULT 0,
-  `prev_bal_label` varchar(191) DEFAULT NULL,
-  `change_return_label` varchar(191) DEFAULT NULL,
-  `product_custom_fields` text DEFAULT NULL,
-  `contact_custom_fields` text DEFAULT NULL,
-  `location_custom_fields` text DEFAULT NULL,
+DROP TABLE IF EXISTS `invoice_layouts`;
+CREATE TABLE IF NOT EXISTS `invoice_layouts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `header_text` text COLLATE utf8mb4_unicode_ci,
+  `invoice_no_prefix` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quotation_no_prefix` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `invoice_heading` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_heading_line1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_heading_line2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_heading_line3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_heading_line4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_heading_line5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `invoice_heading_not_paid` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `invoice_heading_paid` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quotation_heading` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_total_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `round_off_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `total_due_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `paid_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_client_id` tinyint(1) NOT NULL DEFAULT '0',
+  `client_id_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `client_tax_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date_time_format` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_time` tinyint(1) NOT NULL DEFAULT '1',
+  `show_brand` tinyint(1) NOT NULL DEFAULT '0',
+  `show_sku` tinyint(1) NOT NULL DEFAULT '1',
+  `show_cat_code` tinyint(1) NOT NULL DEFAULT '1',
+  `show_expiry` tinyint(1) NOT NULL DEFAULT '0',
+  `show_lot` tinyint(1) NOT NULL DEFAULT '0',
+  `show_image` tinyint(1) NOT NULL DEFAULT '0',
+  `show_sale_description` tinyint(1) NOT NULL DEFAULT '0',
+  `sales_person_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_sales_person` tinyint(1) NOT NULL DEFAULT '0',
+  `table_product_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `table_qty_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `table_unit_price_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `table_subtotal_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cat_code_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `logo` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_logo` tinyint(1) NOT NULL DEFAULT '0',
+  `show_business_name` tinyint(1) NOT NULL DEFAULT '0',
+  `show_location_name` tinyint(1) NOT NULL DEFAULT '1',
+  `show_landmark` tinyint(1) NOT NULL DEFAULT '1',
+  `show_city` tinyint(1) NOT NULL DEFAULT '1',
+  `show_state` tinyint(1) NOT NULL DEFAULT '1',
+  `show_zip_code` tinyint(1) NOT NULL DEFAULT '1',
+  `show_country` tinyint(1) NOT NULL DEFAULT '1',
+  `show_mobile_number` tinyint(1) NOT NULL DEFAULT '1',
+  `show_alternate_number` tinyint(1) NOT NULL DEFAULT '0',
+  `show_email` tinyint(1) NOT NULL DEFAULT '0',
+  `show_tax_1` tinyint(1) NOT NULL DEFAULT '1',
+  `show_tax_2` tinyint(1) NOT NULL DEFAULT '0',
+  `show_barcode` tinyint(1) NOT NULL DEFAULT '0',
+  `show_payments` tinyint(1) NOT NULL DEFAULT '0',
+  `show_customer` tinyint(1) NOT NULL DEFAULT '0',
+  `customer_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `commission_agent_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_commission_agent` tinyint(1) NOT NULL DEFAULT '0',
+  `show_reward_point` tinyint(1) NOT NULL DEFAULT '0',
+  `highlight_color` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `footer_text` text COLLATE utf8mb4_unicode_ci,
+  `module_info` text COLLATE utf8mb4_unicode_ci,
+  `common_settings` text COLLATE utf8mb4_unicode_ci,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `business_id` int UNSIGNED NOT NULL,
+  `show_letter_head` tinyint(1) NOT NULL DEFAULT '0',
+  `letter_head` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `show_qr_code` tinyint(1) NOT NULL DEFAULT '0',
+  `qr_code_fields` text COLLATE utf8mb4_unicode_ci,
+  `design` varchar(190) COLLATE utf8mb4_unicode_ci DEFAULT 'classic',
+  `cn_heading` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'cn = credit note',
+  `cn_no_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cn_amount_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `table_tax_headings` text COLLATE utf8mb4_unicode_ci,
+  `show_previous_bal` tinyint(1) NOT NULL DEFAULT '0',
+  `prev_bal_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `change_return_label` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_fields` text COLLATE utf8mb4_unicode_ci,
+  `contact_custom_fields` text COLLATE utf8mb4_unicode_ci,
+  `location_custom_fields` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `invoice_layouts_business_id_foreign` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `invoice_layouts`
@@ -1855,20 +2127,25 @@ INSERT INTO `invoice_layouts` (`id`, `name`, `header_text`, `invoice_no_prefix`,
 -- Table structure for table `invoice_schemes`
 --
 
-CREATE TABLE `invoice_schemes` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `scheme_type` enum('blank','year') NOT NULL,
-  `number_type` varchar(100) NOT NULL DEFAULT 'sequential',
-  `prefix` varchar(191) DEFAULT NULL,
-  `start_number` int(11) DEFAULT NULL,
-  `invoice_count` int(11) NOT NULL DEFAULT 0,
-  `total_digits` int(11) DEFAULT NULL,
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+DROP TABLE IF EXISTS `invoice_schemes`;
+CREATE TABLE IF NOT EXISTS `invoice_schemes` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `scheme_type` enum('blank','year') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `number_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'sequential',
+  `prefix` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `start_number` int DEFAULT NULL,
+  `invoice_count` int NOT NULL DEFAULT '0',
+  `total_digits` int DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `invoice_schemes_business_id_foreign` (`business_id`),
+  KEY `invoice_schemes_scheme_type_index` (`scheme_type`),
+  KEY `invoice_schemes_number_type_index` (`number_type`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `invoice_schemes`
@@ -1884,13 +2161,17 @@ INSERT INTO `invoice_schemes` (`id`, `business_id`, `name`, `scheme_type`, `numb
 -- Table structure for table `kitchens`
 --
 
-CREATE TABLE `kitchens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `category_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `kitchens`;
+CREATE TABLE IF NOT EXISTS `kitchens` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `category_id` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `kitchens_business_id_foreign` (`business_id`),
+  KEY `kitchens_category_id_foreign` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1899,15 +2180,19 @@ CREATE TABLE `kitchens` (
 -- Table structure for table `line_details`
 --
 
-CREATE TABLE `line_details` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `status` varchar(191) DEFAULT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `line_id` int(10) UNSIGNED NOT NULL,
-  `kitchen_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `line_details`;
+CREATE TABLE IF NOT EXISTS `line_details` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `line_id` int UNSIGNED NOT NULL,
+  `kitchen_id` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `line_details_line_id_foreign` (`line_id`),
+  KEY `line_details_transaction_id_foreign` (`transaction_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1915,54 +2200,59 @@ CREATE TABLE `line_details` (
 -- Table structure for table `main_accounts`
 --
 
-CREATE TABLE `main_accounts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name_ar` varchar(191) NOT NULL,
-  `name_en` varchar(191) DEFAULT NULL,
-  `account_number` int(11) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `account_category_id` bigint(20) UNSIGNED NOT NULL,
-  `financial_statement_id` bigint(20) UNSIGNED NOT NULL,
-  `parent_id` int(11) DEFAULT NULL,
-  `is_closed` int(11) NOT NULL DEFAULT 0,
-  `description` text DEFAULT NULL,
-  `status` varchar(191) NOT NULL DEFAULT 'active',
-  `show_balance` tinyint(1) NOT NULL DEFAULT 1,
-  `totalBalance` decimal(8,2) NOT NULL DEFAULT 6.00,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `main_accounts`;
+CREATE TABLE IF NOT EXISTS `main_accounts` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name_ar` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_en` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `account_number` int DEFAULT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `account_category_id` bigint UNSIGNED NOT NULL,
+  `financial_statement_id` bigint UNSIGNED NOT NULL,
+  `parent_id` int DEFAULT NULL,
+  `is_closed` int NOT NULL DEFAULT '0',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `show_balance` tinyint(1) NOT NULL DEFAULT '1',
+  `totalBalance` decimal(8,2) NOT NULL DEFAULT '6.00',
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `contact_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `contact_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `main_accounts_business_id_foreign` (`business_id`),
+  KEY `main_accounts_account_category_id_foreign` (`account_category_id`),
+  KEY `main_accounts_financial_statement_id_foreign` (`financial_statement_id`),
+  KEY `main_accounts_created_by_foreign` (`created_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `main_accounts`
 --
 
 INSERT INTO `main_accounts` (`id`, `name_ar`, `name_en`, `account_number`, `business_id`, `account_category_id`, `financial_statement_id`, `parent_id`, `is_closed`, `description`, `status`, `show_balance`, `totalBalance`, `created_by`, `created_at`, `updated_at`, `contact_id`) VALUES
-(1, 'تكلفة المبيعات', NULL, 1, 1, 1, 1, NULL, 0, NULL, 'active', 1, 6.00, 1, '2024-02-03 01:22:47', '2024-02-03 01:25:06', NULL),
-(2, 'الاصول', NULL, 2, 1, 1, 2, NULL, 0, NULL, 'active', 1, 6.00, 1, '2024-02-03 01:23:12', '2024-02-03 01:23:12', NULL),
-(3, 'فراس', NULL, 21, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-03 01:23:43', '2024-02-03 01:23:43', 10),
-(4, 'صافي المبيعات', NULL, 11, 1, 1, 1, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-02-03 01:25:35', '2024-02-03 01:25:35', NULL),
-(5, 'صندوق', NULL, 22, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-03 01:57:00', '2024-02-03 01:57:00', NULL),
-(6, 'العملاء', NULL, 23, 1, 1, 1, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-04 13:03:47', '2024-02-04 13:03:47', 14),
-(9, 'mohamed tapo', NULL, 231, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-02-04 16:55:36', '2024-02-04 16:55:36', 10),
-(10, 'test fadol', NULL, 24, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-16 06:05:33', '2024-02-16 06:05:33', 30),
-(11, 'البنك', NULL, 25, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-17 22:30:26', '2024-02-17 22:30:26', NULL),
-(12, 'صندوق اسامة', NULL, 26, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-17 22:31:27', '2024-02-17 22:31:27', NULL),
-(13, 'بنك سعيد', NULL, 27, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-17 22:32:01', '2024-02-17 22:32:01', NULL),
-(14, 'اسامة عامر', NULL, 232, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-02-19 20:11:43', '2024-02-19 20:11:43', 31),
-(15, 'نزار', NULL, 233, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-02-19 20:18:53', '2024-02-19 20:18:53', 32),
-(16, 'امانات ضريبة المبيعات 16%', NULL, 28, 1, 1, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-02-20 22:33:25', '2024-02-23 20:39:04', NULL),
-(17, 'امانات ضريبة المبيعات 15%', NULL, 2331, 1, 1, 2, 15, 0, NULL, 'active', 1, 6.00, 1, '2024-02-23 20:40:57', '2024-02-23 20:40:57', NULL),
-(18, 'امانات ضريبة المبيعات 10%', NULL, 12, 1, 1, 2, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-02-23 20:42:03', '2024-02-23 20:42:03', NULL),
-(19, 'ferasamer', NULL, 234, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-02-24 21:07:02', '2024-02-24 21:07:02', 33),
-(20, 'المشتريات', NULL, 13, 1, 1, 2, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-02-24 21:22:15', '2024-02-24 21:22:15', NULL),
-(21, 'مصروف رواتب', NULL, 14, 1, 1, 1, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-03-01 23:09:32', '2024-03-01 23:09:32', NULL),
-(22, 'عبد الكريم', NULL, 235, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-03-01 23:24:33', '2024-03-01 23:24:33', 34),
-(23, 'مصطفى', NULL, 236, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-03-01 23:28:43', '2024-03-01 23:28:43', 35),
-(24, 'فراس مصطفى', NULL, 237, 1, 1, 1, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-03-02 01:20:35', '2024-03-02 01:20:35', 36),
-(25, 'نينينين', NULL, 211, 1, 1, 2, 3, 0, NULL, 'active', 1, 6.00, 1, '2024-03-02 01:59:48', '2024-03-02 01:59:48', 37);
+(1, 'الاصول', NULL, 1, 1, 2, 2, NULL, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:14:35', '2024-03-08 18:14:35', NULL),
+(2, 'الاصول المتداولة', NULL, 11, 1, 2, 2, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:15:01', '2024-03-08 18:15:01', NULL),
+(3, 'الصندوق', NULL, 111, 1, 2, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:15:30', '2024-03-08 18:15:30', NULL),
+(4, 'البنك', NULL, 112, 1, 2, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:15:57', '2024-03-08 18:15:57', NULL),
+(5, 'الالتزامات و الحقوق الملكية', NULL, 2, 1, 2, 2, NULL, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:16:25', '2024-03-08 18:16:25', NULL),
+(6, 'الالتزامات', NULL, 21, 1, 2, 2, 5, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:17:04', '2024-03-08 18:17:04', NULL),
+(7, 'قروض طويلة الاجل', NULL, 211, 1, 2, 2, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:17:31', '2024-03-08 18:17:31', NULL),
+(8, 'ذمم دائنة', NULL, 212, 1, 2, 2, 6, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:18:02', '2024-03-08 18:18:02', NULL),
+(9, 'نزار عامر', NULL, 2121, 1, 2, 2, 8, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:18:37', '2024-03-08 18:18:37', NULL),
+(10, 'سعيد مصطفى', NULL, 2122, 1, 2, 2, 8, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 18:19:46', '2024-03-08 18:19:46', NULL),
+(11, 'ذمم مدينة', NULL, 113, 1, 2, 2, 2, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:22:08', '2024-03-08 20:22:08', NULL),
+(12, 'فراس عامر', NULL, 1131, 1, 2, 2, 11, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:22:37', '2024-03-08 20:22:37', NULL),
+(13, 'تكلفة المواد', NULL, 3, 1, 2, 2, NULL, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:23:03', '2024-03-08 20:23:03', NULL),
+(14, 'مبيعات', NULL, 31, 1, 2, 1, 13, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:23:31', '2024-03-08 20:23:31', NULL),
+(15, 'الاصول الثابتة', NULL, 12, 1, 2, 2, 1, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:26:08', '2024-03-08 20:26:08', NULL),
+(16, 'اجهزة كمبيوتر و اجهزة كهربائية', NULL, 121, 1, 2, 2, 15, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:26:58', '2024-03-08 20:26:58', NULL),
+(17, 'اجهزة كمبيوتر', NULL, 1211, 1, 2, 2, 16, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:27:39', '2024-03-08 20:27:39', NULL),
+(18, 'اجهزة كمبيوتر فرع عمان', NULL, 12111, 1, 2, 2, 17, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:28:27', '2024-03-08 20:28:27', NULL),
+(19, 'اجهزة كمبيوتر فرع عمان مكتب رئيسي', NULL, 121111, 1, 2, 2, 18, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:29:09', '2024-03-08 20:29:09', NULL),
+(20, 'جهاز سيرفر', NULL, 1211111, 1, 2, 2, 19, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:29:39', '2024-03-08 20:29:39', NULL),
+(21, 'جهاز سيرفر ثاني', NULL, 1211112, 1, 2, 2, 19, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 20:32:39', '2024-03-08 20:32:39', NULL),
+(22, 'سعدون', NULL, 1132, 1, 2, 2, 11, 0, NULL, 'active', 1, 6.00, 1, '2024-03-08 21:49:30', '2024-03-08 21:49:30', 38);
 
 -- --------------------------------------------------------
 
@@ -1970,18 +2260,24 @@ INSERT INTO `main_accounts` (`id`, `name_ar`, `name_en`, `account_number`, `busi
 -- Table structure for table `media`
 --
 
-CREATE TABLE `media` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `file_name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `uploaded_by` int(11) DEFAULT NULL,
-  `model_type` varchar(191) NOT NULL,
-  `woocommerce_media_id` int(11) DEFAULT NULL,
-  `model_media_type` varchar(191) DEFAULT NULL,
-  `model_id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `media`;
+CREATE TABLE IF NOT EXISTS `media` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `file_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `uploaded_by` int DEFAULT NULL,
+  `model_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `woocommerce_media_id` int DEFAULT NULL,
+  `model_media_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `media_model_type_model_id_index` (`model_type`,`model_id`),
+  KEY `media_business_id_index` (`business_id`),
+  KEY `media_uploaded_by_index` (`uploaded_by`),
+  KEY `media_woocommerce_media_id_index` (`woocommerce_media_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1990,13 +2286,15 @@ CREATE TABLE `media` (
 -- Table structure for table `mfg_ingredient_groups`
 --
 
-CREATE TABLE `mfg_ingredient_groups` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `description` text DEFAULT NULL,
+DROP TABLE IF EXISTS `mfg_ingredient_groups`;
+CREATE TABLE IF NOT EXISTS `mfg_ingredient_groups` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2005,20 +2303,24 @@ CREATE TABLE `mfg_ingredient_groups` (
 -- Table structure for table `mfg_recipes`
 --
 
-CREATE TABLE `mfg_recipes` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `variation_id` int(11) NOT NULL,
-  `instructions` text DEFAULT NULL,
-  `waste_percent` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `ingredients_cost` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `extra_cost` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `production_cost_type` varchar(191) DEFAULT 'percentage',
-  `total_quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `mfg_recipes`;
+CREATE TABLE IF NOT EXISTS `mfg_recipes` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `variation_id` int NOT NULL,
+  `instructions` text COLLATE utf8mb4_unicode_ci,
+  `waste_percent` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `ingredients_cost` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `extra_cost` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `production_cost_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'percentage',
+  `total_quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `final_price` decimal(22,4) NOT NULL,
-  `sub_unit_id` int(11) DEFAULT NULL,
+  `sub_unit_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `mfg_recipes_product_id_index` (`product_id`),
+  KEY `mfg_recipes_variation_id_index` (`variation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2027,17 +2329,22 @@ CREATE TABLE `mfg_recipes` (
 -- Table structure for table `mfg_recipe_ingredients`
 --
 
-CREATE TABLE `mfg_recipe_ingredients` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `mfg_recipe_id` int(10) UNSIGNED NOT NULL,
-  `variation_id` int(11) NOT NULL,
-  `mfg_ingredient_group_id` int(11) DEFAULT NULL,
-  `quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `waste_percent` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `sub_unit_id` int(11) DEFAULT NULL,
-  `sort_order` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `mfg_recipe_ingredients`;
+CREATE TABLE IF NOT EXISTS `mfg_recipe_ingredients` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `mfg_recipe_id` int UNSIGNED NOT NULL,
+  `variation_id` int NOT NULL,
+  `mfg_ingredient_group_id` int DEFAULT NULL,
+  `quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `waste_percent` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `sub_unit_id` int DEFAULT NULL,
+  `sort_order` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `mfg_recipe_ingredients_mfg_recipe_id_index` (`mfg_recipe_id`),
+  KEY `mfg_recipe_ingredients_variation_id_index` (`variation_id`),
+  KEY `mfg_recipe_ingredients_sub_unit_id_index` (`sub_unit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2046,11 +2353,13 @@ CREATE TABLE `mfg_recipe_ingredients` (
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(191) NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=453 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -2510,10 +2819,13 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- Table structure for table `model_has_permissions`
 --
 
-CREATE TABLE `model_has_permissions` (
-  `permission_id` int(10) UNSIGNED NOT NULL,
-  `model_type` varchar(191) NOT NULL,
-  `model_id` bigint(20) UNSIGNED NOT NULL
+DROP TABLE IF EXISTS `model_has_permissions`;
+CREATE TABLE IF NOT EXISTS `model_has_permissions` (
+  `permission_id` int UNSIGNED NOT NULL,
+  `model_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
+  PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
+  KEY `model_has_permissions_model_type_model_id_index` (`model_type`,`model_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2522,10 +2834,13 @@ CREATE TABLE `model_has_permissions` (
 -- Table structure for table `model_has_roles`
 --
 
-CREATE TABLE `model_has_roles` (
-  `role_id` int(10) UNSIGNED NOT NULL,
-  `model_type` varchar(191) NOT NULL,
-  `model_id` bigint(20) UNSIGNED NOT NULL
+DROP TABLE IF EXISTS `model_has_roles`;
+CREATE TABLE IF NOT EXISTS `model_has_roles` (
+  `role_id` int UNSIGNED NOT NULL,
+  `model_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model_id` bigint UNSIGNED NOT NULL,
+  PRIMARY KEY (`role_id`,`model_id`,`model_type`),
+  KEY `model_has_roles_model_type_model_id_index` (`model_type`,`model_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -2541,15 +2856,18 @@ INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 -- Table structure for table `notifications`
 --
 
-CREATE TABLE `notifications` (
-  `id` char(36) NOT NULL,
-  `type` varchar(191) NOT NULL,
-  `notifiable_type` varchar(191) NOT NULL,
-  `notifiable_id` bigint(20) UNSIGNED NOT NULL,
-  `data` text NOT NULL,
+DROP TABLE IF EXISTS `notifications`;
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notifiable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notifiable_id` bigint UNSIGNED NOT NULL,
+  `data` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `read_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `notifications_notifiable_type_notifiable_id_index` (`notifiable_type`,`notifiable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2558,22 +2876,24 @@ CREATE TABLE `notifications` (
 -- Table structure for table `notification_templates`
 --
 
-CREATE TABLE `notification_templates` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `template_for` varchar(191) NOT NULL,
-  `email_body` text DEFAULT NULL,
-  `sms_body` text DEFAULT NULL,
-  `whatsapp_text` text DEFAULT NULL,
-  `subject` varchar(191) DEFAULT NULL,
-  `cc` varchar(191) DEFAULT NULL,
-  `bcc` varchar(191) DEFAULT NULL,
-  `auto_send` tinyint(1) NOT NULL DEFAULT 0,
-  `auto_send_sms` tinyint(1) NOT NULL DEFAULT 0,
-  `auto_send_wa_notif` tinyint(1) NOT NULL DEFAULT 0,
+DROP TABLE IF EXISTS `notification_templates`;
+CREATE TABLE IF NOT EXISTS `notification_templates` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `template_for` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_body` text COLLATE utf8mb4_unicode_ci,
+  `sms_body` text COLLATE utf8mb4_unicode_ci,
+  `whatsapp_text` text COLLATE utf8mb4_unicode_ci,
+  `subject` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cc` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bcc` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `auto_send` tinyint(1) NOT NULL DEFAULT '0',
+  `auto_send_sms` tinyint(1) NOT NULL DEFAULT '0',
+  `auto_send_wa_notif` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `notification_templates`
@@ -2597,16 +2917,19 @@ INSERT INTO `notification_templates` (`id`, `business_id`, `template_for`, `emai
 -- Table structure for table `oauth_access_tokens`
 --
 
-CREATE TABLE `oauth_access_tokens` (
-  `id` varchar(100) NOT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
-  `client_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) DEFAULT NULL,
-  `scopes` text DEFAULT NULL,
+DROP TABLE IF EXISTS `oauth_access_tokens`;
+CREATE TABLE IF NOT EXISTS `oauth_access_tokens` (
+  `id` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint DEFAULT NULL,
+  `client_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `scopes` text COLLATE utf8mb4_unicode_ci,
   `revoked` tinyint(1) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `expires_at` datetime DEFAULT NULL
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_access_tokens_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2615,13 +2938,15 @@ CREATE TABLE `oauth_access_tokens` (
 -- Table structure for table `oauth_auth_codes`
 --
 
-CREATE TABLE `oauth_auth_codes` (
-  `id` varchar(100) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `client_id` int(10) UNSIGNED NOT NULL,
-  `scopes` text DEFAULT NULL,
+DROP TABLE IF EXISTS `oauth_auth_codes`;
+CREATE TABLE IF NOT EXISTS `oauth_auth_codes` (
+  `id` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint NOT NULL,
+  `client_id` int UNSIGNED NOT NULL,
+  `scopes` text COLLATE utf8mb4_unicode_ci,
   `revoked` tinyint(1) NOT NULL,
-  `expires_at` datetime DEFAULT NULL
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2630,18 +2955,21 @@ CREATE TABLE `oauth_auth_codes` (
 -- Table structure for table `oauth_clients`
 --
 
-CREATE TABLE `oauth_clients` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_id` bigint(20) DEFAULT NULL,
-  `name` varchar(191) NOT NULL,
-  `secret` varchar(100) NOT NULL,
-  `provider` varchar(191) DEFAULT NULL,
-  `redirect` text NOT NULL,
+DROP TABLE IF EXISTS `oauth_clients`;
+CREATE TABLE IF NOT EXISTS `oauth_clients` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `secret` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `provider` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `redirect` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `personal_access_client` tinyint(1) NOT NULL,
   `password_client` tinyint(1) NOT NULL,
   `revoked` tinyint(1) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_clients_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2650,11 +2978,14 @@ CREATE TABLE `oauth_clients` (
 -- Table structure for table `oauth_personal_access_clients`
 --
 
-CREATE TABLE `oauth_personal_access_clients` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `client_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `oauth_personal_access_clients`;
+CREATE TABLE IF NOT EXISTS `oauth_personal_access_clients` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `client_id` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_personal_access_clients_client_id_index` (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2663,11 +2994,14 @@ CREATE TABLE `oauth_personal_access_clients` (
 -- Table structure for table `oauth_refresh_tokens`
 --
 
-CREATE TABLE `oauth_refresh_tokens` (
-  `id` varchar(100) NOT NULL,
-  `access_token_id` varchar(100) NOT NULL,
+DROP TABLE IF EXISTS `oauth_refresh_tokens`;
+CREATE TABLE IF NOT EXISTS `oauth_refresh_tokens` (
+  `id` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `access_token_id` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `revoked` tinyint(1) NOT NULL,
-  `expires_at` datetime DEFAULT NULL
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `oauth_refresh_tokens_access_token_id_index` (`access_token_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2676,14 +3010,19 @@ CREATE TABLE `oauth_refresh_tokens` (
 -- Table structure for table `order_complete`
 --
 
-CREATE TABLE `order_complete` (
-  `id` bigint(11) NOT NULL,
-  `status` varchar(10) NOT NULL DEFAULT 'not_done',
-  `business_id` bigint(11) NOT NULL,
-  `kitchen_id` bigint(11) NOT NULL,
-  `line_id` bigint(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+DROP TABLE IF EXISTS `order_complete`;
+CREATE TABLE IF NOT EXISTS `order_complete` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `status` varchar(10) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'not_done',
+  `business_id` bigint NOT NULL,
+  `kitchen_id` bigint NOT NULL,
+  `line_id` bigint NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `business_id` (`business_id`),
+  KEY `kitchen_id` (`kitchen_id`),
+  KEY `line_id` (`line_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -2692,14 +3031,19 @@ CREATE TABLE `order_complete` (
 -- Table structure for table `order_status`
 --
 
-CREATE TABLE `order_status` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `status` varchar(191) DEFAULT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `kitchen_id` bigint(20) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `order_status`;
+CREATE TABLE IF NOT EXISTS `order_status` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `kitchen_id` bigint UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_status_transaction_id_foreign` (`transaction_id`),
+  KEY `order_status_business_id_foreign` (`business_id`),
+  KEY `order_status_kitchen_id_foreign` (`kitchen_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2708,35 +3052,37 @@ CREATE TABLE `order_status` (
 -- Table structure for table `packages`
 --
 
-CREATE TABLE `packages` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text NOT NULL,
-  `location_count` int(11) NOT NULL COMMENT 'No. of Business Locations, 0 = infinite option.',
-  `user_count` int(11) NOT NULL,
-  `product_count` int(11) NOT NULL,
-  `bookings` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable/Disable bookings',
-  `kitchen` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable/Disable kitchen',
-  `order_screen` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable/Disable order_screen',
-  `tables` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Enable/Disable tables',
-  `invoice_count` int(11) NOT NULL,
-  `interval` enum('days','months','years') NOT NULL,
-  `interval_count` int(11) NOT NULL,
-  `trial_days` int(11) NOT NULL,
+DROP TABLE IF EXISTS `packages`;
+CREATE TABLE IF NOT EXISTS `packages` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location_count` int NOT NULL COMMENT 'No. of Business Locations, 0 = infinite option.',
+  `user_count` int NOT NULL,
+  `product_count` int NOT NULL,
+  `bookings` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Enable/Disable bookings',
+  `kitchen` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Enable/Disable kitchen',
+  `order_screen` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Enable/Disable order_screen',
+  `tables` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Enable/Disable tables',
+  `invoice_count` int NOT NULL,
+  `interval` enum('days','months','years') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `interval_count` int NOT NULL,
+  `trial_days` int NOT NULL,
   `price` decimal(22,4) NOT NULL,
-  `custom_permissions` longtext NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `custom_permissions` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_by` int NOT NULL,
+  `sort_order` int NOT NULL DEFAULT '0',
   `is_active` tinyint(1) NOT NULL,
-  `is_private` tinyint(1) NOT NULL DEFAULT 0,
-  `is_one_time` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_custom_link` tinyint(1) NOT NULL DEFAULT 0,
-  `custom_link` varchar(191) DEFAULT NULL,
-  `custom_link_text` varchar(191) DEFAULT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT '0',
+  `is_one_time` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_custom_link` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_link` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_link_text` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `packages`
@@ -2751,10 +3097,12 @@ INSERT INTO `packages` (`id`, `name`, `description`, `location_count`, `user_cou
 -- Table structure for table `password_resets`
 --
 
-CREATE TABLE `password_resets` (
-  `email` varchar(191) NOT NULL,
-  `token` varchar(191) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL
+DROP TABLE IF EXISTS `password_resets`;
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2763,13 +3111,15 @@ CREATE TABLE `password_resets` (
 -- Table structure for table `permissions`
 --
 
-CREATE TABLE `permissions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `guard_name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE IF NOT EXISTS `permissions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `permissions`
@@ -2933,17 +3283,21 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at
 -- Table structure for table `pjt_invoice_lines`
 --
 
-CREATE TABLE `pjt_invoice_lines` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `task` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
+DROP TABLE IF EXISTS `pjt_invoice_lines`;
+CREATE TABLE IF NOT EXISTS `pjt_invoice_lines` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `task` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
   `rate` decimal(22,4) NOT NULL,
-  `tax_rate_id` int(11) DEFAULT NULL,
+  `tax_rate_id` int DEFAULT NULL,
   `quantity` decimal(22,4) NOT NULL,
   `total` decimal(22,4) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_invoice_lines_transaction_id_foreign` (`transaction_id`),
+  KEY `pjt_invoice_lines_tax_rate_id_index` (`tax_rate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2952,20 +3306,26 @@ CREATE TABLE `pjt_invoice_lines` (
 -- Table structure for table `pjt_projects`
 --
 
-CREATE TABLE `pjt_projects` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `contact_id` int(11) DEFAULT NULL,
-  `status` enum('not_started','in_progress','on_hold','cancelled','completed') NOT NULL,
-  `lead_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `pjt_projects`;
+CREATE TABLE IF NOT EXISTS `pjt_projects` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `contact_id` int DEFAULT NULL,
+  `status` enum('not_started','in_progress','on_hold','cancelled','completed') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lead_id` int NOT NULL,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `settings` text DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
+  `settings` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_projects_business_id_index` (`business_id`),
+  KEY `pjt_projects_contact_id_index` (`contact_id`),
+  KEY `pjt_projects_lead_id_index` (`lead_id`),
+  KEY `pjt_projects_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2974,10 +3334,14 @@ CREATE TABLE `pjt_projects` (
 -- Table structure for table `pjt_project_members`
 --
 
-CREATE TABLE `pjt_project_members` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `project_id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `pjt_project_members`;
+CREATE TABLE IF NOT EXISTS `pjt_project_members` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` int UNSIGNED NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_project_members_project_id_foreign` (`project_id`),
+  KEY `pjt_project_members_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -2986,24 +3350,29 @@ CREATE TABLE `pjt_project_members` (
 -- Table structure for table `pjt_project_tasks`
 --
 
-CREATE TABLE `pjt_project_tasks` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `project_id` int(10) UNSIGNED NOT NULL,
-  `task_id` varchar(191) NOT NULL,
-  `subject` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `pjt_project_tasks`;
+CREATE TABLE IF NOT EXISTS `pjt_project_tasks` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `project_id` int UNSIGNED NOT NULL,
+  `task_id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subject` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `start_date` datetime DEFAULT NULL,
   `due_date` datetime DEFAULT NULL,
-  `priority` enum('low','medium','high','urgent') NOT NULL DEFAULT 'low',
-  `description` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `status` enum('completed','not_started','in_progress','on_hold','cancelled') NOT NULL DEFAULT 'not_started',
-  `custom_field_1` varchar(191) DEFAULT NULL,
-  `custom_field_2` varchar(191) DEFAULT NULL,
-  `custom_field_3` varchar(191) DEFAULT NULL,
-  `custom_field_4` varchar(191) DEFAULT NULL,
+  `priority` enum('low','medium','high','urgent') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'low',
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
+  `status` enum('completed','not_started','in_progress','on_hold','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'not_started',
+  `custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_project_tasks_project_id_foreign` (`project_id`),
+  KEY `pjt_project_tasks_business_id_index` (`business_id`),
+  KEY `pjt_project_tasks_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3012,13 +3381,16 @@ CREATE TABLE `pjt_project_tasks` (
 -- Table structure for table `pjt_project_task_comments`
 --
 
-CREATE TABLE `pjt_project_task_comments` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `project_task_id` int(10) UNSIGNED NOT NULL,
-  `comment` text NOT NULL,
-  `commented_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `pjt_project_task_comments`;
+CREATE TABLE IF NOT EXISTS `pjt_project_task_comments` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_task_id` int UNSIGNED NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `commented_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_project_task_comments_project_task_id_foreign` (`project_task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3027,10 +3399,14 @@ CREATE TABLE `pjt_project_task_comments` (
 -- Table structure for table `pjt_project_task_members`
 --
 
-CREATE TABLE `pjt_project_task_members` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `project_task_id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `pjt_project_task_members`;
+CREATE TABLE IF NOT EXISTS `pjt_project_task_members` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_task_id` int UNSIGNED NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_project_task_members_project_task_id_foreign` (`project_task_id`),
+  KEY `pjt_project_task_members_user_id_index` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3039,17 +3415,23 @@ CREATE TABLE `pjt_project_task_members` (
 -- Table structure for table `pjt_project_time_logs`
 --
 
-CREATE TABLE `pjt_project_time_logs` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `project_id` int(10) UNSIGNED NOT NULL,
-  `project_task_id` int(10) UNSIGNED DEFAULT NULL,
-  `user_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `pjt_project_time_logs`;
+CREATE TABLE IF NOT EXISTS `pjt_project_time_logs` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `project_id` int UNSIGNED NOT NULL,
+  `project_task_id` int UNSIGNED DEFAULT NULL,
+  `user_id` int NOT NULL,
   `start_datetime` datetime NOT NULL,
   `end_datetime` datetime NOT NULL,
-  `note` text DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+  `note` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pjt_project_time_logs_project_id_foreign` (`project_id`),
+  KEY `pjt_project_time_logs_project_task_id_foreign` (`project_task_id`),
+  KEY `pjt_project_time_logs_user_id_index` (`user_id`),
+  KEY `pjt_project_time_logs_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3058,19 +3440,22 @@ CREATE TABLE `pjt_project_time_logs` (
 -- Table structure for table `printers`
 --
 
-CREATE TABLE `printers` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `connection_type` enum('network','windows','linux') NOT NULL,
-  `capability_profile` enum('default','simple','SP2000','TEP-200M','P822D') NOT NULL DEFAULT 'default',
-  `char_per_line` varchar(191) DEFAULT NULL,
-  `ip_address` varchar(191) DEFAULT NULL,
-  `port` varchar(191) DEFAULT NULL,
-  `path` varchar(191) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `printers`;
+CREATE TABLE IF NOT EXISTS `printers` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection_type` enum('network','windows','linux') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `capability_profile` enum('default','simple','SP2000','TEP-200M','P822D') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default',
+  `char_per_line` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ip_address` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `port` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `path` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `printers_business_id_foreign` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3079,61 +3464,79 @@ CREATE TABLE `printers` (
 -- Table structure for table `products`
 --
 
-CREATE TABLE `products` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `type` enum('single','variable','modifier','combo') DEFAULT NULL,
-  `unit_id` int(11) UNSIGNED DEFAULT NULL,
-  `secondary_unit_id` int(11) DEFAULT NULL,
-  `sub_unit_ids` text DEFAULT NULL,
-  `brand_id` int(10) UNSIGNED DEFAULT NULL,
-  `category_id` int(10) UNSIGNED DEFAULT NULL,
-  `sub_category_id` int(10) UNSIGNED DEFAULT NULL,
-  `tax` int(10) UNSIGNED DEFAULT NULL,
-  `tax_type` enum('inclusive','exclusive') NOT NULL,
-  `enable_stock` tinyint(1) NOT NULL DEFAULT 0,
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `type` enum('single','variable','modifier','combo') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unit_id` int UNSIGNED DEFAULT NULL,
+  `secondary_unit_id` int DEFAULT NULL,
+  `sub_unit_ids` text COLLATE utf8mb4_unicode_ci,
+  `brand_id` int UNSIGNED DEFAULT NULL,
+  `category_id` int UNSIGNED DEFAULT NULL,
+  `sub_category_id` int UNSIGNED DEFAULT NULL,
+  `tax` int UNSIGNED DEFAULT NULL,
+  `tax_type` enum('inclusive','exclusive') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `enable_stock` tinyint(1) NOT NULL DEFAULT '0',
   `alert_quantity` decimal(22,4) DEFAULT NULL,
-  `sku` varchar(191) NOT NULL,
-  `barcode_type` enum('C39','C128','EAN13','EAN8','UPCA','UPCE') DEFAULT 'C128',
+  `sku` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `barcode_type` enum('C39','C128','EAN13','EAN8','UPCA','UPCE') COLLATE utf8mb4_unicode_ci DEFAULT 'C128',
   `expiry_period` decimal(4,2) DEFAULT NULL,
-  `expiry_period_type` enum('days','months') DEFAULT NULL,
-  `enable_sr_no` tinyint(1) NOT NULL DEFAULT 0,
-  `weight` varchar(191) DEFAULT NULL,
-  `product_custom_field1` varchar(191) DEFAULT NULL,
-  `product_custom_field2` varchar(191) DEFAULT NULL,
-  `product_custom_field3` varchar(191) DEFAULT NULL,
-  `product_custom_field4` varchar(191) DEFAULT NULL,
-  `product_custom_field5` varchar(191) DEFAULT NULL,
-  `product_custom_field6` varchar(191) DEFAULT NULL,
-  `product_custom_field7` varchar(191) DEFAULT NULL,
-  `product_custom_field8` varchar(191) DEFAULT NULL,
-  `product_custom_field9` varchar(191) DEFAULT NULL,
-  `product_custom_field10` varchar(191) DEFAULT NULL,
-  `product_custom_field11` varchar(191) DEFAULT NULL,
-  `product_custom_field12` varchar(191) DEFAULT NULL,
-  `product_custom_field13` varchar(191) DEFAULT NULL,
-  `product_custom_field14` varchar(191) DEFAULT NULL,
-  `product_custom_field15` varchar(191) DEFAULT NULL,
-  `product_custom_field16` varchar(191) DEFAULT NULL,
-  `product_custom_field17` varchar(191) DEFAULT NULL,
-  `product_custom_field18` varchar(191) DEFAULT NULL,
-  `product_custom_field19` varchar(191) DEFAULT NULL,
-  `product_custom_field20` varchar(191) DEFAULT NULL,
-  `image` varchar(191) DEFAULT NULL,
-  `woocommerce_media_id` int(11) DEFAULT NULL,
-  `product_description` text DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `woocommerce_product_id` int(11) DEFAULT NULL,
-  `woocommerce_disable_sync` tinyint(1) NOT NULL DEFAULT 0,
-  `preparation_time_in_minutes` int(11) DEFAULT NULL,
-  `warranty_id` int(11) DEFAULT NULL,
-  `is_inactive` tinyint(1) NOT NULL DEFAULT 0,
-  `repair_model_id` int(10) UNSIGNED DEFAULT NULL,
-  `not_for_selling` tinyint(1) NOT NULL DEFAULT 0,
+  `expiry_period_type` enum('days','months') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enable_sr_no` tinyint(1) NOT NULL DEFAULT '0',
+  `weight` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field6` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field7` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field8` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field9` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field10` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field11` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field12` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field13` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field14` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field15` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field16` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field17` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field18` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field19` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_custom_field20` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `image` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_media_id` int DEFAULT NULL,
+  `product_description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int UNSIGNED NOT NULL,
+  `woocommerce_product_id` int DEFAULT NULL,
+  `woocommerce_disable_sync` tinyint(1) NOT NULL DEFAULT '0',
+  `preparation_time_in_minutes` int DEFAULT NULL,
+  `warranty_id` int DEFAULT NULL,
+  `is_inactive` tinyint(1) NOT NULL DEFAULT '0',
+  `repair_model_id` int UNSIGNED DEFAULT NULL,
+  `not_for_selling` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `products_brand_id_foreign` (`brand_id`),
+  KEY `products_category_id_foreign` (`category_id`),
+  KEY `products_sub_category_id_foreign` (`sub_category_id`),
+  KEY `products_tax_foreign` (`tax`),
+  KEY `products_name_index` (`name`),
+  KEY `products_business_id_index` (`business_id`),
+  KEY `products_unit_id_index` (`unit_id`),
+  KEY `products_created_by_index` (`created_by`),
+  KEY `products_warranty_id_index` (`warranty_id`),
+  KEY `products_type_index` (`type`),
+  KEY `products_tax_type_index` (`tax_type`),
+  KEY `products_barcode_type_index` (`barcode_type`),
+  KEY `products_secondary_unit_id_index` (`secondary_unit_id`),
+  KEY `products_repair_model_id_index` (`repair_model_id`),
+  KEY `products_woocommerce_product_id_index` (`woocommerce_product_id`),
+  KEY `products_woocommerce_media_id_index` (`woocommerce_media_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `products`
@@ -3153,9 +3556,12 @@ INSERT INTO `products` (`id`, `name`, `business_id`, `type`, `unit_id`, `seconda
 -- Table structure for table `product_locations`
 --
 
-CREATE TABLE `product_locations` (
-  `product_id` int(11) NOT NULL,
-  `location_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `product_locations`;
+CREATE TABLE IF NOT EXISTS `product_locations` (
+  `product_id` int NOT NULL,
+  `location_id` int NOT NULL,
+  KEY `product_locations_product_id_index` (`product_id`),
+  KEY `product_locations_location_id_index` (`location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -3176,16 +3582,21 @@ INSERT INTO `product_locations` (`product_id`, `location_id`) VALUES
 -- Table structure for table `product_racks`
 --
 
-CREATE TABLE `product_racks` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `rack` varchar(191) DEFAULT NULL,
-  `row` varchar(191) DEFAULT NULL,
-  `position` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `product_racks`;
+CREATE TABLE IF NOT EXISTS `product_racks` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `rack` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `row` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `position` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_racks_business_id_index` (`business_id`),
+  KEY `product_racks_location_id_index` (`location_id`),
+  KEY `product_racks_product_id_index` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3194,15 +3605,19 @@ CREATE TABLE `product_racks` (
 -- Table structure for table `product_variations`
 --
 
-CREATE TABLE `product_variations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `variation_template_id` int(11) DEFAULT NULL,
-  `name` varchar(191) NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `is_dummy` tinyint(1) NOT NULL DEFAULT 1,
+DROP TABLE IF EXISTS `product_variations`;
+CREATE TABLE IF NOT EXISTS `product_variations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `variation_template_id` int DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `is_dummy` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_variations_name_index` (`name`),
+  KEY `product_variations_product_id_index` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `product_variations`
@@ -3222,33 +3637,41 @@ INSERT INTO `product_variations` (`id`, `variation_template_id`, `name`, `produc
 -- Table structure for table `purchase_lines`
 --
 
-CREATE TABLE `purchase_lines` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `variation_id` int(10) UNSIGNED NOT NULL,
-  `quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `pp_without_discount` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'Purchase price before inline discounts',
-  `discount_percent` decimal(5,2) NOT NULL DEFAULT 0.00 COMMENT 'Inline discount percentage',
+DROP TABLE IF EXISTS `purchase_lines`;
+CREATE TABLE IF NOT EXISTS `purchase_lines` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `variation_id` int UNSIGNED NOT NULL,
+  `quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `pp_without_discount` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'Purchase price before inline discounts',
+  `discount_percent` decimal(5,2) NOT NULL DEFAULT '0.00' COMMENT 'Inline discount percentage',
   `purchase_price` decimal(22,4) NOT NULL,
-  `purchase_price_inc_tax` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `purchase_price_inc_tax` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `item_tax` decimal(22,4) NOT NULL COMMENT 'Tax for one quantity',
-  `tax_id` int(10) UNSIGNED DEFAULT NULL,
-  `purchase_requisition_line_id` int(11) DEFAULT NULL,
-  `purchase_order_line_id` int(11) DEFAULT NULL,
-  `quantity_sold` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'Quanity sold from this purchase line',
-  `quantity_adjusted` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'Quanity adjusted in stock adjustment from this purchase line',
-  `quantity_returned` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `po_quantity_purchased` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `mfg_quantity_used` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `tax_id` int UNSIGNED DEFAULT NULL,
+  `purchase_requisition_line_id` int DEFAULT NULL,
+  `purchase_order_line_id` int DEFAULT NULL,
+  `quantity_sold` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'Quanity sold from this purchase line',
+  `quantity_adjusted` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'Quanity adjusted in stock adjustment from this purchase line',
+  `quantity_returned` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `po_quantity_purchased` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `mfg_quantity_used` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `mfg_date` date DEFAULT NULL,
   `exp_date` date DEFAULT NULL,
-  `lot_number` varchar(191) DEFAULT NULL,
-  `sub_unit_id` int(11) DEFAULT NULL,
+  `lot_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_unit_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_lines_transaction_id_foreign` (`transaction_id`),
+  KEY `purchase_lines_product_id_foreign` (`product_id`),
+  KEY `purchase_lines_variation_id_foreign` (`variation_id`),
+  KEY `purchase_lines_tax_id_foreign` (`tax_id`),
+  KEY `purchase_lines_sub_unit_id_index` (`sub_unit_id`),
+  KEY `purchase_lines_lot_number_index` (`lot_number`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `purchase_lines`
@@ -3270,14 +3693,17 @@ INSERT INTO `purchase_lines` (`id`, `transaction_id`, `product_id`, `variation_i
 -- Table structure for table `reference_counts`
 --
 
-CREATE TABLE `reference_counts` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `ref_type` varchar(191) NOT NULL,
-  `ref_count` int(11) NOT NULL,
-  `business_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `reference_counts`;
+CREATE TABLE IF NOT EXISTS `reference_counts` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ref_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ref_count` int NOT NULL,
+  `business_id` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reference_counts_business_id_index` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `reference_counts`
@@ -3285,10 +3711,10 @@ CREATE TABLE `reference_counts` (
 
 INSERT INTO `reference_counts` (`id`, `ref_type`, `ref_count`, `business_id`, `created_at`, `updated_at`) VALUES
 (36, 'purchase_payment', 10, 1, '2024-02-29 23:18:56', '2024-03-03 22:59:21'),
-(37, 'journal_entry', 50, 1, '2024-02-29 23:18:56', '2024-03-03 23:26:28'),
+(37, 'journal_entry', 54, 1, '2024-02-29 23:18:56', '2024-03-08 20:33:42'),
 (42, 'sell_payment', 27, 1, '2024-03-01 00:24:40', '2024-03-03 23:26:28'),
 (47, 'expense', 28, 1, '2024-03-01 21:18:46', '2024-03-03 22:14:25'),
-(48, 'contacts', 4, 1, '2024-03-01 23:24:33', '2024-03-02 01:59:48'),
+(48, 'contacts', 5, 1, '2024-03-01 23:24:33', '2024-03-08 21:49:30'),
 (52, 'purchase', 9, 1, '2024-03-01 23:32:01', '2024-03-03 23:09:11');
 
 -- --------------------------------------------------------
@@ -3297,16 +3723,22 @@ INSERT INTO `reference_counts` (`id`, `ref_type`, `ref_count`, `business_id`, `c
 -- Table structure for table `repair_device_models`
 --
 
-CREATE TABLE `repair_device_models` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `repair_checklist` text DEFAULT NULL,
-  `brand_id` int(10) UNSIGNED DEFAULT NULL,
-  `device_id` int(10) UNSIGNED DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `repair_device_models`;
+CREATE TABLE IF NOT EXISTS `repair_device_models` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `repair_checklist` text COLLATE utf8mb4_unicode_ci,
+  `brand_id` int UNSIGNED DEFAULT NULL,
+  `device_id` int UNSIGNED DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repair_device_models_business_id_index` (`business_id`),
+  KEY `repair_device_models_brand_id_index` (`brand_id`),
+  KEY `repair_device_models_device_id_index` (`device_id`),
+  KEY `repair_device_models_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3315,38 +3747,49 @@ CREATE TABLE `repair_device_models` (
 -- Table structure for table `repair_job_sheets`
 --
 
-CREATE TABLE `repair_job_sheets` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED DEFAULT NULL,
-  `contact_id` int(10) UNSIGNED NOT NULL,
-  `job_sheet_no` varchar(191) NOT NULL,
-  `service_type` enum('carry_in','pick_up','on_site') NOT NULL,
-  `pick_up_on_site_addr` text DEFAULT NULL,
-  `brand_id` int(10) UNSIGNED DEFAULT NULL,
-  `device_id` int(10) UNSIGNED DEFAULT NULL,
-  `device_model_id` int(10) UNSIGNED DEFAULT NULL,
-  `checklist` text DEFAULT NULL,
-  `security_pwd` varchar(191) DEFAULT NULL,
-  `security_pattern` varchar(191) DEFAULT NULL,
-  `serial_no` varchar(191) NOT NULL,
-  `status_id` int(11) NOT NULL,
+DROP TABLE IF EXISTS `repair_job_sheets`;
+CREATE TABLE IF NOT EXISTS `repair_job_sheets` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED DEFAULT NULL,
+  `contact_id` int UNSIGNED NOT NULL,
+  `job_sheet_no` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `service_type` enum('carry_in','pick_up','on_site') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pick_up_on_site_addr` text COLLATE utf8mb4_unicode_ci,
+  `brand_id` int UNSIGNED DEFAULT NULL,
+  `device_id` int UNSIGNED DEFAULT NULL,
+  `device_model_id` int UNSIGNED DEFAULT NULL,
+  `checklist` text COLLATE utf8mb4_unicode_ci,
+  `security_pwd` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `security_pattern` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `serial_no` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status_id` int NOT NULL,
   `delivery_date` datetime DEFAULT NULL,
-  `product_configuration` text DEFAULT NULL,
-  `defects` text DEFAULT NULL,
-  `product_condition` text DEFAULT NULL,
-  `service_staff` int(10) UNSIGNED DEFAULT NULL,
-  `comment_by_ss` text DEFAULT NULL COMMENT 'comment made by technician',
+  `product_configuration` text COLLATE utf8mb4_unicode_ci,
+  `defects` text COLLATE utf8mb4_unicode_ci,
+  `product_condition` text COLLATE utf8mb4_unicode_ci,
+  `service_staff` int UNSIGNED DEFAULT NULL,
+  `comment_by_ss` text COLLATE utf8mb4_unicode_ci COMMENT 'comment made by technician',
   `estimated_cost` decimal(22,4) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `parts` text DEFAULT NULL,
-  `custom_field_1` varchar(191) DEFAULT NULL,
-  `custom_field_2` varchar(191) DEFAULT NULL,
-  `custom_field_3` varchar(191) DEFAULT NULL,
-  `custom_field_4` varchar(191) DEFAULT NULL,
-  `custom_field_5` varchar(191) DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
+  `parts` text COLLATE utf8mb4_unicode_ci,
+  `custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repair_job_sheets_business_id_index` (`business_id`),
+  KEY `repair_job_sheets_location_id_index` (`location_id`),
+  KEY `repair_job_sheets_contact_id_index` (`contact_id`),
+  KEY `repair_job_sheets_brand_id_index` (`brand_id`),
+  KEY `repair_job_sheets_device_id_index` (`device_id`),
+  KEY `repair_job_sheets_device_model_id_index` (`device_model_id`),
+  KEY `repair_job_sheets_status_id_index` (`status_id`),
+  KEY `repair_job_sheets_service_staff_index` (`service_staff`),
+  KEY `repair_job_sheets_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3355,18 +3798,20 @@ CREATE TABLE `repair_job_sheets` (
 -- Table structure for table `repair_statuses`
 --
 
-CREATE TABLE `repair_statuses` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `color` varchar(191) DEFAULT NULL,
-  `sort_order` int(11) DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
-  `is_completed_status` tinyint(1) NOT NULL DEFAULT 0,
-  `sms_template` text DEFAULT NULL,
-  `email_subject` text DEFAULT NULL,
-  `email_body` text DEFAULT NULL,
+DROP TABLE IF EXISTS `repair_statuses`;
+CREATE TABLE IF NOT EXISTS `repair_statuses` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sort_order` int DEFAULT NULL,
+  `business_id` int NOT NULL,
+  `is_completed_status` tinyint(1) NOT NULL DEFAULT '0',
+  `sms_template` text COLLATE utf8mb4_unicode_ci,
+  `email_subject` text COLLATE utf8mb4_unicode_ci,
+  `email_body` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3375,9 +3820,11 @@ CREATE TABLE `repair_statuses` (
 -- Table structure for table `res_product_modifier_sets`
 --
 
-CREATE TABLE `res_product_modifier_sets` (
-  `modifier_set_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL COMMENT 'Table use to store the modifier sets applicable for a product'
+DROP TABLE IF EXISTS `res_product_modifier_sets`;
+CREATE TABLE IF NOT EXISTS `res_product_modifier_sets` (
+  `modifier_set_id` int UNSIGNED NOT NULL,
+  `product_id` int UNSIGNED NOT NULL COMMENT 'Table use to store the modifier sets applicable for a product',
+  KEY `res_product_modifier_sets_modifier_set_id_foreign` (`modifier_set_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3386,16 +3833,19 @@ CREATE TABLE `res_product_modifier_sets` (
 -- Table structure for table `res_tables`
 --
 
-CREATE TABLE `res_tables` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `res_tables`;
+CREATE TABLE IF NOT EXISTS `res_tables` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `created_by` int UNSIGNED NOT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `res_tables_business_id_foreign` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3404,16 +3854,19 @@ CREATE TABLE `res_tables` (
 -- Table structure for table `roles`
 --
 
-CREATE TABLE `roles` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `guard_name` varchar(191) NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `is_service_staff` tinyint(1) NOT NULL DEFAULT 0,
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE IF NOT EXISTS `roles` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guard_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `is_service_staff` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `roles_business_id_foreign` (`business_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `roles`
@@ -3429,9 +3882,12 @@ INSERT INTO `roles` (`id`, `name`, `guard_name`, `business_id`, `is_default`, `i
 -- Table structure for table `role_has_permissions`
 --
 
-CREATE TABLE `role_has_permissions` (
-  `permission_id` int(10) UNSIGNED NOT NULL,
-  `role_id` int(10) UNSIGNED NOT NULL
+DROP TABLE IF EXISTS `role_has_permissions`;
+CREATE TABLE IF NOT EXISTS `role_has_permissions` (
+  `permission_id` int UNSIGNED NOT NULL,
+  `role_id` int UNSIGNED NOT NULL,
+  PRIMARY KEY (`permission_id`,`role_id`),
+  KEY `role_has_permissions_role_id_foreign` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -3561,15 +4017,18 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 -- Table structure for table `selling_price_groups`
 --
 
-CREATE TABLE `selling_price_groups` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+DROP TABLE IF EXISTS `selling_price_groups`;
+CREATE TABLE IF NOT EXISTS `selling_price_groups` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `business_id` int UNSIGNED NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `selling_price_groups_business_id_foreign` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3578,9 +4037,10 @@ CREATE TABLE `selling_price_groups` (
 -- Table structure for table `sell_line_warranties`
 --
 
-CREATE TABLE `sell_line_warranties` (
-  `sell_line_id` int(11) NOT NULL,
-  `warranty_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `sell_line_warranties`;
+CREATE TABLE IF NOT EXISTS `sell_line_warranties` (
+  `sell_line_id` int NOT NULL,
+  `warranty_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3589,13 +4049,15 @@ CREATE TABLE `sell_line_warranties` (
 -- Table structure for table `sessions`
 --
 
-CREATE TABLE `sessions` (
-  `id` varchar(191) NOT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
-  `ip_address` varchar(45) DEFAULT NULL,
-  `user_agent` text DEFAULT NULL,
-  `payload` text NOT NULL,
-  `last_activity` int(11) NOT NULL
+DROP TABLE IF EXISTS `sessions`;
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` int UNSIGNED DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `payload` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int NOT NULL,
+  UNIQUE KEY `sessions_id_unique` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3604,14 +4066,18 @@ CREATE TABLE `sessions` (
 -- Table structure for table `sheet_spreadsheets`
 --
 
-CREATE TABLE `sheet_spreadsheets` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `sheet_data` longtext NOT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `sheet_spreadsheets`;
+CREATE TABLE IF NOT EXISTS `sheet_spreadsheets` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sheet_data` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sheet_spreadsheets_business_id_foreign` (`business_id`),
+  KEY `sheet_spreadsheets_created_by_index` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3620,13 +4086,18 @@ CREATE TABLE `sheet_spreadsheets` (
 -- Table structure for table `sheet_spreadsheet_shares`
 --
 
-CREATE TABLE `sheet_spreadsheet_shares` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `sheet_spreadsheet_id` bigint(20) UNSIGNED NOT NULL,
-  `shared_with` varchar(191) NOT NULL COMMENT 'Shared with like user/role/todo',
-  `shared_id` int(11) NOT NULL COMMENT 'Id of shared with like user_id/role_id/todo_id',
+DROP TABLE IF EXISTS `sheet_spreadsheet_shares`;
+CREATE TABLE IF NOT EXISTS `sheet_spreadsheet_shares` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `sheet_spreadsheet_id` bigint UNSIGNED NOT NULL,
+  `shared_with` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Shared with like user/role/todo',
+  `shared_id` int NOT NULL COMMENT 'Id of shared with like user_id/role_id/todo_id',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sheet_spreadsheet_shares_sheet_spreadsheet_id_foreign` (`sheet_spreadsheet_id`),
+  KEY `sheet_spreadsheet_shares_shared_with_index` (`shared_with`),
+  KEY `sheet_spreadsheet_shares_shared_id_index` (`shared_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3635,14 +4106,16 @@ CREATE TABLE `sheet_spreadsheet_shares` (
 -- Table structure for table `songs`
 --
 
-CREATE TABLE `songs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `song_name` varchar(191) DEFAULT NULL,
-  `nike_name` varchar(191) DEFAULT NULL,
-  `path` varchar(191) DEFAULT NULL,
-  `business_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `songs`;
+CREATE TABLE IF NOT EXISTS `songs` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `song_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nike_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `path` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3651,8 +4124,9 @@ CREATE TABLE `songs` (
 -- Table structure for table `stock_adjustments_temp`
 --
 
-CREATE TABLE `stock_adjustments_temp` (
-  `id` int(11) DEFAULT NULL
+DROP TABLE IF EXISTS `stock_adjustments_temp`;
+CREATE TABLE IF NOT EXISTS `stock_adjustments_temp` (
+  `id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -3661,18 +4135,24 @@ CREATE TABLE `stock_adjustments_temp` (
 -- Table structure for table `stock_adjustment_lines`
 --
 
-CREATE TABLE `stock_adjustment_lines` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `variation_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `stock_adjustment_lines`;
+CREATE TABLE IF NOT EXISTS `stock_adjustment_lines` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `variation_id` int UNSIGNED NOT NULL,
   `quantity` decimal(22,4) NOT NULL,
-  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `unit_price` decimal(22,4) DEFAULT NULL COMMENT 'Last purchase unit price',
-  `removed_purchase_line` int(11) DEFAULT NULL,
-  `lot_no_line_id` int(11) DEFAULT NULL,
+  `removed_purchase_line` int DEFAULT NULL,
+  `lot_no_line_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `stock_adjustment_lines_product_id_foreign` (`product_id`),
+  KEY `stock_adjustment_lines_variation_id_foreign` (`variation_id`),
+  KEY `stock_adjustment_lines_transaction_id_index` (`transaction_id`),
+  KEY `stock_adjustment_lines_lot_no_line_id_index` (`lot_no_line_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3681,23 +4161,28 @@ CREATE TABLE `stock_adjustment_lines` (
 -- Table structure for table `subscriptions`
 --
 
-CREATE TABLE `subscriptions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `package_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `subscriptions`;
+CREATE TABLE IF NOT EXISTS `subscriptions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `package_id` int UNSIGNED NOT NULL,
   `start_date` date DEFAULT NULL,
   `trial_end_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `package_price` decimal(22,4) NOT NULL,
-  `package_details` longtext NOT NULL,
-  `created_id` int(10) UNSIGNED NOT NULL,
-  `paid_via` varchar(191) DEFAULT NULL,
-  `payment_transaction_id` varchar(191) DEFAULT NULL,
-  `status` enum('approved','waiting','declined') NOT NULL DEFAULT 'waiting',
+  `package_details` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_id` int UNSIGNED NOT NULL,
+  `paid_via` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_transaction_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('approved','waiting','declined') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'waiting',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `subscriptions_business_id_foreign` (`business_id`),
+  KEY `subscriptions_package_id_index` (`package_id`),
+  KEY `subscriptions_created_id_index` (`created_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `subscriptions`
@@ -3712,13 +4197,15 @@ INSERT INTO `subscriptions` (`id`, `business_id`, `package_id`, `start_date`, `t
 -- Table structure for table `superadmin_communicator_logs`
 --
 
-CREATE TABLE `superadmin_communicator_logs` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_ids` text DEFAULT NULL,
-  `subject` varchar(191) DEFAULT NULL,
-  `message` text DEFAULT NULL,
+DROP TABLE IF EXISTS `superadmin_communicator_logs`;
+CREATE TABLE IF NOT EXISTS `superadmin_communicator_logs` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_ids` text COLLATE utf8mb4_unicode_ci,
+  `subject` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3727,15 +4214,17 @@ CREATE TABLE `superadmin_communicator_logs` (
 -- Table structure for table `superadmin_frontend_pages`
 --
 
-CREATE TABLE `superadmin_frontend_pages` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `title` varchar(191) DEFAULT NULL,
-  `slug` varchar(191) NOT NULL,
-  `content` longtext NOT NULL,
+DROP TABLE IF EXISTS `superadmin_frontend_pages`;
+CREATE TABLE IF NOT EXISTS `superadmin_frontend_pages` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `slug` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_shown` tinyint(1) NOT NULL,
-  `menu_order` int(11) DEFAULT 0,
+  `menu_order` int DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -3744,11 +4233,13 @@ CREATE TABLE `superadmin_frontend_pages` (
 -- Table structure for table `system`
 --
 
-CREATE TABLE `system` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `key` varchar(191) NOT NULL,
-  `value` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+DROP TABLE IF EXISTS `system`;
+CREATE TABLE IF NOT EXISTS `system` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `system`
@@ -3786,20 +4277,26 @@ INSERT INTO `system` (`id`, `key`, `value`) VALUES
 -- Table structure for table `tax_rates`
 --
 
-CREATE TABLE `tax_rates` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `account_id` bigint(11) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `tax_rates`;
+CREATE TABLE IF NOT EXISTS `tax_rates` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `account_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` double(22,4) NOT NULL,
-  `is_tax_group` tinyint(1) NOT NULL DEFAULT 0,
-  `for_tax_group` tinyint(1) NOT NULL DEFAULT 0,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `woocommerce_tax_rate_id` int(11) DEFAULT NULL,
+  `is_tax_group` tinyint(1) NOT NULL DEFAULT '0',
+  `for_tax_group` tinyint(1) NOT NULL DEFAULT '0',
+  `created_by` int UNSIGNED NOT NULL,
+  `woocommerce_tax_rate_id` int DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `tax_rates_business_id_foreign` (`business_id`),
+  KEY `tax_rates_created_by_foreign` (`created_by`),
+  KEY `tax_rates_woocommerce_tax_rate_id_index` (`woocommerce_tax_rate_id`),
+  KEY `account_id` (`account_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `tax_rates`
@@ -3817,153 +4314,177 @@ INSERT INTO `tax_rates` (`id`, `business_id`, `account_id`, `name`, `amount`, `i
 -- Table structure for table `transactions`
 --
 
-CREATE TABLE `transactions` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED DEFAULT NULL,
-  `res_table_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'fields to restaurant module',
-  `res_waiter_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'fields to restaurant module',
-  `global_currenc_id` bigint(20) NOT NULL,
-  `res_order_status` enum('received','cooked','served') DEFAULT NULL,
-  `type` varchar(191) DEFAULT NULL,
-  `sub_type` varchar(20) DEFAULT NULL,
-  `status` varchar(191) NOT NULL,
-  `sub_status` varchar(191) DEFAULT NULL,
-  `is_quotation` tinyint(1) NOT NULL DEFAULT 0,
-  `payment_status` enum('paid','due','partial') DEFAULT NULL,
-  `adjustment_type` enum('normal','abnormal') DEFAULT NULL,
-  `contact_id` int(11) UNSIGNED DEFAULT NULL,
-  `customer_group_id` int(11) DEFAULT NULL COMMENT 'used to add customer group while selling',
-  `invoice_no` varchar(191) DEFAULT NULL,
-  `ref_no` varchar(191) DEFAULT NULL,
-  `source` varchar(191) DEFAULT NULL,
-  `subscription_no` varchar(191) DEFAULT NULL,
-  `subscription_repeat_on` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED DEFAULT NULL,
+  `res_table_id` int UNSIGNED DEFAULT NULL COMMENT 'fields to restaurant module',
+  `res_waiter_id` int UNSIGNED DEFAULT NULL COMMENT 'fields to restaurant module',
+  `global_currenc_id` bigint NOT NULL,
+  `res_order_status` enum('received','cooked','served') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_type` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sub_status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_quotation` tinyint(1) NOT NULL DEFAULT '0',
+  `payment_status` enum('paid','due','partial') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `adjustment_type` enum('normal','abnormal') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_id` int UNSIGNED DEFAULT NULL,
+  `customer_group_id` int DEFAULT NULL COMMENT 'used to add customer group while selling',
+  `invoice_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ref_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `source` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subscription_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subscription_repeat_on` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `transaction_date` datetime NOT NULL,
-  `total_before_tax` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'Total before the purchase/invoice tax, this includeds the indivisual product tax',
-  `tax_id` int(10) UNSIGNED DEFAULT NULL,
-  `tax_amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `discount_type` enum('fixed','percentage') DEFAULT NULL,
-  `discount_amount` decimal(22,4) DEFAULT 0.0000,
-  `rp_redeemed` int(11) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `rp_redeemed_amount` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'rp is the short form of reward points',
-  `shipping_details` varchar(191) DEFAULT NULL,
-  `shipping_address` text DEFAULT NULL,
+  `total_before_tax` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'Total before the purchase/invoice tax, this includeds the indivisual product tax',
+  `tax_id` int UNSIGNED DEFAULT NULL,
+  `tax_amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `discount_type` enum('fixed','percentage') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount_amount` decimal(22,4) DEFAULT '0.0000',
+  `rp_redeemed` int NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `rp_redeemed_amount` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'rp is the short form of reward points',
+  `shipping_details` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_address` text COLLATE utf8mb4_unicode_ci,
   `delivery_date` datetime DEFAULT NULL,
-  `shipping_status` varchar(191) DEFAULT NULL,
-  `delivered_to` varchar(191) DEFAULT NULL,
-  `shipping_charges` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `shipping_custom_field_1` varchar(191) DEFAULT NULL,
-  `shipping_custom_field_2` varchar(191) DEFAULT NULL,
-  `shipping_custom_field_3` varchar(191) DEFAULT NULL,
-  `shipping_custom_field_4` varchar(191) DEFAULT NULL,
-  `shipping_custom_field_5` varchar(191) DEFAULT NULL,
-  `additional_notes` text DEFAULT NULL,
-  `staff_note` text DEFAULT NULL,
-  `is_export` tinyint(1) NOT NULL DEFAULT 0,
-  `export_custom_fields_info` longtext DEFAULT NULL,
-  `round_off_amount` decimal(22,4) NOT NULL DEFAULT 0.0000 COMMENT 'Difference of rounded total and actual total',
-  `additional_expense_key_1` varchar(191) DEFAULT NULL,
-  `additional_expense_value_1` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `additional_expense_key_2` varchar(191) DEFAULT NULL,
-  `additional_expense_value_2` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `additional_expense_key_3` varchar(191) DEFAULT NULL,
-  `additional_expense_value_3` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `additional_expense_key_4` varchar(191) DEFAULT NULL,
-  `additional_expense_value_4` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `final_total` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `expense_category_id` int(10) UNSIGNED DEFAULT NULL,
-  `expense_sub_category_id` int(11) DEFAULT NULL,
-  `expense_for` int(10) UNSIGNED DEFAULT NULL,
-  `commission_agent` int(11) DEFAULT NULL,
-  `document` varchar(191) DEFAULT NULL,
-  `is_direct_sale` tinyint(1) NOT NULL DEFAULT 0,
-  `is_suspend` tinyint(1) NOT NULL DEFAULT 0,
-  `exchange_rate` decimal(20,3) NOT NULL DEFAULT 1.000,
+  `shipping_status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `delivered_to` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_charges` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `shipping_custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_custom_field_5` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `additional_notes` text COLLATE utf8mb4_unicode_ci,
+  `staff_note` text COLLATE utf8mb4_unicode_ci,
+  `is_export` tinyint(1) NOT NULL DEFAULT '0',
+  `export_custom_fields_info` longtext COLLATE utf8mb4_unicode_ci,
+  `round_off_amount` decimal(22,4) NOT NULL DEFAULT '0.0000' COMMENT 'Difference of rounded total and actual total',
+  `additional_expense_key_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `additional_expense_value_1` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `additional_expense_key_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `additional_expense_value_2` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `additional_expense_key_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `additional_expense_value_3` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `additional_expense_key_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `additional_expense_value_4` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `final_total` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `expense_category_id` int UNSIGNED DEFAULT NULL,
+  `expense_sub_category_id` int DEFAULT NULL,
+  `expense_for` int UNSIGNED DEFAULT NULL,
+  `commission_agent` int DEFAULT NULL,
+  `document` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_direct_sale` tinyint(1) NOT NULL DEFAULT '0',
+  `is_suspend` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(20,3) NOT NULL DEFAULT '1.000',
   `total_amount_recovered` decimal(22,4) DEFAULT NULL COMMENT 'Used for stock adjustment.',
-  `transfer_parent_id` int(11) DEFAULT NULL,
-  `return_parent_id` int(11) DEFAULT NULL,
-  `opening_stock_product_id` int(11) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
-  `crm_is_order_request` tinyint(1) NOT NULL DEFAULT 0,
+  `transfer_parent_id` int DEFAULT NULL,
+  `return_parent_id` int DEFAULT NULL,
+  `opening_stock_product_id` int DEFAULT NULL,
+  `created_by` int UNSIGNED NOT NULL,
+  `crm_is_order_request` tinyint(1) NOT NULL DEFAULT '0',
   `essentials_duration` decimal(8,2) NOT NULL,
-  `essentials_duration_unit` varchar(20) DEFAULT NULL,
-  `essentials_amount_per_unit_duration` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `essentials_allowances` text DEFAULT NULL,
-  `essentials_deductions` text DEFAULT NULL,
+  `essentials_duration_unit` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `essentials_amount_per_unit_duration` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `essentials_allowances` text COLLATE utf8mb4_unicode_ci,
+  `essentials_deductions` text COLLATE utf8mb4_unicode_ci,
   `repair_completed_on` datetime DEFAULT NULL,
-  `repair_warranty_id` int(11) DEFAULT NULL,
-  `repair_brand_id` int(11) DEFAULT NULL,
-  `repair_status_id` int(11) DEFAULT NULL,
-  `repair_model_id` int(11) DEFAULT NULL,
-  `repair_job_sheet_id` int(10) UNSIGNED DEFAULT NULL,
-  `repair_defects` text DEFAULT NULL,
-  `repair_serial_no` varchar(191) DEFAULT NULL,
-  `repair_checklist` text DEFAULT NULL,
-  `repair_security_pwd` varchar(191) DEFAULT NULL,
-  `repair_security_pattern` varchar(191) DEFAULT NULL,
+  `repair_warranty_id` int DEFAULT NULL,
+  `repair_brand_id` int DEFAULT NULL,
+  `repair_status_id` int DEFAULT NULL,
+  `repair_model_id` int DEFAULT NULL,
+  `repair_job_sheet_id` int UNSIGNED DEFAULT NULL,
+  `repair_defects` text COLLATE utf8mb4_unicode_ci,
+  `repair_serial_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `repair_checklist` text COLLATE utf8mb4_unicode_ci,
+  `repair_security_pwd` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `repair_security_pattern` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `repair_due_date` datetime DEFAULT NULL,
-  `repair_device_id` int(11) DEFAULT NULL,
-  `repair_updates_notif` tinyint(1) NOT NULL DEFAULT 0,
-  `woocommerce_order_id` int(11) DEFAULT NULL,
-  `mfg_parent_production_purchase_id` int(11) DEFAULT NULL,
+  `repair_device_id` int DEFAULT NULL,
+  `repair_updates_notif` tinyint(1) NOT NULL DEFAULT '0',
+  `woocommerce_order_id` int DEFAULT NULL,
+  `mfg_parent_production_purchase_id` int DEFAULT NULL,
   `mfg_wasted_units` decimal(22,4) DEFAULT NULL,
-  `mfg_production_cost` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `mfg_production_cost_type` varchar(191) DEFAULT 'percentage',
-  `mfg_is_final` tinyint(1) NOT NULL DEFAULT 0,
-  `purchase_requisition_ids` text DEFAULT NULL,
-  `prefer_payment_method` varchar(191) DEFAULT NULL,
-  `prefer_payment_account` int(11) DEFAULT NULL,
-  `sales_order_ids` text DEFAULT NULL,
-  `purchase_order_ids` text DEFAULT NULL,
-  `custom_field_1` varchar(191) DEFAULT NULL,
-  `custom_field_2` varchar(191) DEFAULT NULL,
-  `custom_field_3` varchar(191) DEFAULT NULL,
-  `custom_field_4` varchar(191) DEFAULT NULL,
-  `import_batch` int(11) DEFAULT NULL,
+  `mfg_production_cost` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `mfg_production_cost_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'percentage',
+  `mfg_is_final` tinyint(1) NOT NULL DEFAULT '0',
+  `purchase_requisition_ids` text COLLATE utf8mb4_unicode_ci,
+  `prefer_payment_method` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `prefer_payment_account` int DEFAULT NULL,
+  `sales_order_ids` text COLLATE utf8mb4_unicode_ci,
+  `purchase_order_ids` text COLLATE utf8mb4_unicode_ci,
+  `custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `import_batch` int DEFAULT NULL,
   `import_time` datetime DEFAULT NULL,
-  `types_of_service_id` int(11) DEFAULT NULL,
+  `types_of_service_id` int DEFAULT NULL,
   `packing_charge` decimal(22,4) DEFAULT NULL,
-  `packing_charge_type` enum('fixed','percent') DEFAULT NULL,
-  `service_custom_field_1` text DEFAULT NULL,
-  `service_custom_field_2` text DEFAULT NULL,
-  `service_custom_field_3` text DEFAULT NULL,
-  `service_custom_field_4` text DEFAULT NULL,
-  `service_custom_field_5` text DEFAULT NULL,
-  `service_custom_field_6` text DEFAULT NULL,
-  `is_created_from_api` tinyint(1) NOT NULL DEFAULT 0,
-  `rp_earned` int(11) NOT NULL DEFAULT 0 COMMENT 'rp is the short form of reward points',
-  `order_addresses` text DEFAULT NULL,
-  `is_recurring` tinyint(1) NOT NULL DEFAULT 0,
+  `packing_charge_type` enum('fixed','percent') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `service_custom_field_1` text COLLATE utf8mb4_unicode_ci,
+  `service_custom_field_2` text COLLATE utf8mb4_unicode_ci,
+  `service_custom_field_3` text COLLATE utf8mb4_unicode_ci,
+  `service_custom_field_4` text COLLATE utf8mb4_unicode_ci,
+  `service_custom_field_5` text COLLATE utf8mb4_unicode_ci,
+  `service_custom_field_6` text COLLATE utf8mb4_unicode_ci,
+  `is_created_from_api` tinyint(1) NOT NULL DEFAULT '0',
+  `rp_earned` int NOT NULL DEFAULT '0' COMMENT 'rp is the short form of reward points',
+  `order_addresses` text COLLATE utf8mb4_unicode_ci,
+  `is_recurring` tinyint(1) NOT NULL DEFAULT '0',
   `recur_interval` double(22,4) DEFAULT NULL,
-  `recur_interval_type` enum('days','months','years') DEFAULT NULL,
-  `recur_repetitions` int(11) DEFAULT NULL,
+  `recur_interval_type` enum('days','months','years') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `recur_repetitions` int DEFAULT NULL,
   `recur_stopped_on` datetime DEFAULT NULL,
-  `recur_parent_id` int(11) DEFAULT NULL,
-  `invoice_token` varchar(191) DEFAULT NULL,
-  `pay_term_number` int(11) DEFAULT NULL,
-  `pay_term_type` enum('days','months') DEFAULT NULL,
-  `pjt_project_id` int(10) UNSIGNED DEFAULT NULL,
-  `pjt_title` varchar(191) DEFAULT NULL,
-  `selling_price_group_id` int(11) DEFAULT NULL,
-  `info` varchar(11) DEFAULT NULL,
+  `recur_parent_id` int DEFAULT NULL,
+  `invoice_token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pay_term_number` int DEFAULT NULL,
+  `pay_term_type` enum('days','months') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pjt_project_id` int UNSIGNED DEFAULT NULL,
+  `pjt_title` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `selling_price_group_id` int DEFAULT NULL,
+  `info` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transactions_tax_id_foreign` (`tax_id`),
+  KEY `transactions_business_id_index` (`business_id`),
+  KEY `transactions_type_index` (`type`),
+  KEY `transactions_contact_id_index` (`contact_id`),
+  KEY `transactions_transaction_date_index` (`transaction_date`),
+  KEY `transactions_created_by_index` (`created_by`),
+  KEY `transactions_location_id_index` (`location_id`),
+  KEY `transactions_expense_for_foreign` (`expense_for`),
+  KEY `transactions_expense_category_id_index` (`expense_category_id`),
+  KEY `transactions_sub_type_index` (`sub_type`),
+  KEY `transactions_return_parent_id_index` (`return_parent_id`),
+  KEY `type` (`type`),
+  KEY `transactions_status_index` (`status`),
+  KEY `transactions_sub_status_index` (`sub_status`),
+  KEY `transactions_res_table_id_index` (`res_table_id`),
+  KEY `transactions_res_waiter_id_index` (`res_waiter_id`),
+  KEY `transactions_res_order_status_index` (`res_order_status`),
+  KEY `transactions_payment_status_index` (`payment_status`),
+  KEY `transactions_discount_type_index` (`discount_type`),
+  KEY `transactions_commission_agent_index` (`commission_agent`),
+  KEY `transactions_transfer_parent_id_index` (`transfer_parent_id`),
+  KEY `transactions_types_of_service_id_index` (`types_of_service_id`),
+  KEY `transactions_packing_charge_type_index` (`packing_charge_type`),
+  KEY `transactions_recur_parent_id_index` (`recur_parent_id`),
+  KEY `transactions_selling_price_group_id_index` (`selling_price_group_id`),
+  KEY `transactions_delivery_date_index` (`delivery_date`),
+  KEY `transactions_mfg_parent_production_purchase_id_index` (`mfg_parent_production_purchase_id`),
+  KEY `transactions_repair_model_id_index` (`repair_model_id`),
+  KEY `transactions_pjt_project_id_foreign` (`pjt_project_id`),
+  KEY `transactions_repair_warranty_id_index` (`repair_warranty_id`),
+  KEY `transactions_repair_brand_id_index` (`repair_brand_id`),
+  KEY `transactions_repair_status_id_index` (`repair_status_id`),
+  KEY `transactions_repair_device_id_index` (`repair_device_id`),
+  KEY `transactions_repair_job_sheet_id_index` (`repair_job_sheet_id`),
+  KEY `transactions_woocommerce_order_id_index` (`woocommerce_order_id`),
+  KEY `global_currenc_id` (`global_currenc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `transactions`
---
-
-INSERT INTO `transactions` (`id`, `business_id`, `location_id`, `res_table_id`, `res_waiter_id`, `global_currenc_id`, `res_order_status`, `type`, `sub_type`, `status`, `sub_status`, `is_quotation`, `payment_status`, `adjustment_type`, `contact_id`, `customer_group_id`, `invoice_no`, `ref_no`, `source`, `subscription_no`, `subscription_repeat_on`, `transaction_date`, `total_before_tax`, `tax_id`, `tax_amount`, `discount_type`, `discount_amount`, `rp_redeemed`, `rp_redeemed_amount`, `shipping_details`, `shipping_address`, `delivery_date`, `shipping_status`, `delivered_to`, `shipping_charges`, `shipping_custom_field_1`, `shipping_custom_field_2`, `shipping_custom_field_3`, `shipping_custom_field_4`, `shipping_custom_field_5`, `additional_notes`, `staff_note`, `is_export`, `export_custom_fields_info`, `round_off_amount`, `additional_expense_key_1`, `additional_expense_value_1`, `additional_expense_key_2`, `additional_expense_value_2`, `additional_expense_key_3`, `additional_expense_value_3`, `additional_expense_key_4`, `additional_expense_value_4`, `final_total`, `expense_category_id`, `expense_sub_category_id`, `expense_for`, `commission_agent`, `document`, `is_direct_sale`, `is_suspend`, `exchange_rate`, `total_amount_recovered`, `transfer_parent_id`, `return_parent_id`, `opening_stock_product_id`, `created_by`, `crm_is_order_request`, `essentials_duration`, `essentials_duration_unit`, `essentials_amount_per_unit_duration`, `essentials_allowances`, `essentials_deductions`, `repair_completed_on`, `repair_warranty_id`, `repair_brand_id`, `repair_status_id`, `repair_model_id`, `repair_job_sheet_id`, `repair_defects`, `repair_serial_no`, `repair_checklist`, `repair_security_pwd`, `repair_security_pattern`, `repair_due_date`, `repair_device_id`, `repair_updates_notif`, `woocommerce_order_id`, `mfg_parent_production_purchase_id`, `mfg_wasted_units`, `mfg_production_cost`, `mfg_production_cost_type`, `mfg_is_final`, `purchase_requisition_ids`, `prefer_payment_method`, `prefer_payment_account`, `sales_order_ids`, `purchase_order_ids`, `custom_field_1`, `custom_field_2`, `custom_field_3`, `custom_field_4`, `import_batch`, `import_time`, `types_of_service_id`, `packing_charge`, `packing_charge_type`, `service_custom_field_1`, `service_custom_field_2`, `service_custom_field_3`, `service_custom_field_4`, `service_custom_field_5`, `service_custom_field_6`, `is_created_from_api`, `rp_earned`, `order_addresses`, `is_recurring`, `recur_interval`, `recur_interval_type`, `recur_repetitions`, `recur_stopped_on`, `recur_parent_id`, `invoice_token`, `pay_term_number`, `pay_term_type`, `pjt_project_id`, `pjt_title`, `selling_price_group_id`, `info`, `created_at`, `updated_at`) VALUES
-(3, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'due', NULL, 35, NULL, NULL, 'PO2024/0004', NULL, NULL, NULL, '2024-03-04 01:00:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 22:01:47', '2024-03-03 22:01:47'),
-(4, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'due', NULL, 35, NULL, NULL, 'PO2024/0005', NULL, NULL, NULL, '2024-03-04 01:01:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 22:02:56', '2024-03-03 22:02:56'),
-(5, 1, 1, NULL, NULL, 0, NULL, 'expense', NULL, 'final', NULL, 0, 'paid', NULL, 10, NULL, NULL, 'EP2024/0028', NULL, NULL, NULL, '2024-03-04 01:12:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, 2, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(6, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'paid', NULL, 35, NULL, NULL, 'PO2024/0006', NULL, NULL, NULL, '2024-03-04 01:56:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(7, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'partial', NULL, 35, NULL, NULL, 'PO2024/0007', NULL, NULL, NULL, '2024-03-04 01:59:00', 115.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 115.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(8, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'due', NULL, 35, NULL, NULL, 'PO2024/0008', NULL, NULL, NULL, '2024-03-04 02:03:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 23:04:43', '2024-03-03 23:04:43'),
-(9, 1, 1, NULL, NULL, 0, NULL, 'purchase', NULL, 'received', NULL, 0, 'due', NULL, 35, NULL, NULL, 'PO2024/0009', NULL, NULL, NULL, '2024-03-04 02:08:00', 100.0000, NULL, 0.0000, NULL, 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 100.0000, NULL, NULL, NULL, NULL, NULL, 0, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 23:09:11', '2024-03-03 23:09:11'),
-(10, 1, 1, NULL, NULL, 0, NULL, 'sell', NULL, 'final', NULL, 0, 'paid', NULL, 10, NULL, '0092', '', NULL, NULL, NULL, '2024-03-04 02:25:00', 158.1300, NULL, 0.0000, 'percentage', 0.0000, 0, 0.0000, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, NULL, 0.0000, 158.1300, NULL, NULL, NULL, NULL, NULL, 1, 0, 1.000, NULL, NULL, NULL, NULL, 1, 0, 0.00, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0.0000, 'percentage', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0.0000, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, 0, 1.0000, 'days', 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
 
 -- --------------------------------------------------------
 
@@ -3971,50 +4492,44 @@ INSERT INTO `transactions` (`id`, `business_id`, `location_id`, `res_table_id`, 
 -- Table structure for table `transaction_payments`
 --
 
-CREATE TABLE `transaction_payments` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `transaction_id` int(11) UNSIGNED DEFAULT NULL,
-  `business_id` int(11) DEFAULT NULL,
-  `is_return` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Used during sales to return the change',
-  `amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `method` varchar(191) DEFAULT NULL,
-  `payment_type` varchar(191) DEFAULT NULL,
-  `transaction_no` varchar(191) DEFAULT NULL,
-  `card_transaction_number` varchar(191) DEFAULT NULL,
-  `card_number` varchar(191) DEFAULT NULL,
-  `card_type` varchar(191) DEFAULT NULL,
-  `card_holder_name` varchar(191) DEFAULT NULL,
-  `card_month` varchar(191) DEFAULT NULL,
-  `card_year` varchar(191) DEFAULT NULL,
-  `card_security` varchar(5) DEFAULT NULL,
-  `cheque_number` varchar(191) DEFAULT NULL,
-  `bank_account_number` varchar(191) DEFAULT NULL,
+DROP TABLE IF EXISTS `transaction_payments`;
+CREATE TABLE IF NOT EXISTS `transaction_payments` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transaction_id` int UNSIGNED DEFAULT NULL,
+  `business_id` int DEFAULT NULL,
+  `is_return` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Used during sales to return the change',
+  `amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `method` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_transaction_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_holder_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_month` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_year` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `card_security` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cheque_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bank_account_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `paid_on` datetime DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `paid_through_link` tinyint(1) NOT NULL DEFAULT 0,
-  `gateway` varchar(191) DEFAULT NULL,
-  `is_advance` tinyint(1) NOT NULL DEFAULT 0,
-  `payment_for` int(11) DEFAULT NULL COMMENT 'stores the contact id',
-  `parent_id` int(11) DEFAULT NULL,
-  `note` varchar(191) DEFAULT NULL,
-  `document` varchar(191) DEFAULT NULL,
-  `payment_ref_no` varchar(191) DEFAULT NULL,
-  `account_id` int(11) DEFAULT NULL,
+  `created_by` int DEFAULT NULL,
+  `paid_through_link` tinyint(1) NOT NULL DEFAULT '0',
+  `gateway` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_advance` tinyint(1) NOT NULL DEFAULT '0',
+  `payment_for` int DEFAULT NULL COMMENT 'stores the contact id',
+  `parent_id` int DEFAULT NULL,
+  `note` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_ref_no` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `account_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transaction_payments_transaction_id_foreign` (`transaction_id`),
+  KEY `transaction_payments_created_by_index` (`created_by`),
+  KEY `transaction_payments_parent_id_index` (`parent_id`),
+  KEY `transaction_payments_payment_type_index` (`payment_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `transaction_payments`
---
-
-INSERT INTO `transaction_payments` (`id`, `transaction_id`, `business_id`, `is_return`, `amount`, `method`, `payment_type`, `transaction_no`, `card_transaction_number`, `card_number`, `card_type`, `card_holder_name`, `card_month`, `card_year`, `card_security`, `cheque_number`, `bank_account_number`, `paid_on`, `created_by`, `paid_through_link`, `gateway`, `is_advance`, `payment_for`, `parent_id`, `note`, `document`, `payment_ref_no`, `account_id`, `created_at`, `updated_at`) VALUES
-(1, NULL, 1, 0, 100.0000, 'cash', 'debit', NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 01:11:00', 1, 0, NULL, 1, 14, NULL, NULL, NULL, 'PP2024/0007', NULL, '2024-03-03 22:12:08', '2024-03-03 22:12:08'),
-(2, 5, 1, 0, 100.0000, 'cash', NULL, NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 01:12:00', 1, 0, NULL, 0, 10, NULL, NULL, NULL, 'SP2024/0026', NULL, '2024-03-03 22:14:25', '2024-03-03 22:14:25'),
-(4, NULL, 1, 0, 100.0000, 'cash', 'debit', NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 01:32:00', 1, 0, NULL, 1, 14, NULL, NULL, NULL, 'PP2024/0008', NULL, '2024-03-03 22:33:48', '2024-03-03 22:33:48'),
-(5, 6, 1, 0, 100.0000, 'cash', NULL, NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 01:56:00', 1, 0, NULL, 0, 35, NULL, NULL, NULL, 'PP2024/0009', NULL, '2024-03-03 22:57:25', '2024-03-03 22:57:25'),
-(6, 7, 1, 0, 100.0000, 'cash', NULL, NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 01:59:00', 1, 0, NULL, 0, 35, NULL, NULL, NULL, 'PP2024/0010', NULL, '2024-03-03 22:59:21', '2024-03-03 22:59:21'),
-(7, 10, 1, 0, 158.1300, 'cash', NULL, NULL, NULL, NULL, 'credit', NULL, NULL, NULL, NULL, NULL, NULL, '2024-03-04 02:25:00', 1, 0, NULL, 0, 10, NULL, NULL, NULL, 'SP2024/0027', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
 
 -- --------------------------------------------------------
 
@@ -4022,44 +4537,49 @@ INSERT INTO `transaction_payments` (`id`, `transaction_id`, `business_id`, `is_r
 -- Table structure for table `transaction_sell_lines`
 --
 
-CREATE TABLE `transaction_sell_lines` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `transaction_id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `kitchen_id` int(10) UNSIGNED DEFAULT NULL,
-  `variation_id` int(10) UNSIGNED NOT NULL,
-  `quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `mfg_waste_percent` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `mfg_ingredient_group_id` int(11) DEFAULT NULL,
-  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `quantity_returned` decimal(20,4) NOT NULL DEFAULT 0.0000,
-  `unit_price_before_discount` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `transaction_sell_lines`;
+CREATE TABLE IF NOT EXISTS `transaction_sell_lines` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `transaction_id` int UNSIGNED NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `kitchen_id` int UNSIGNED DEFAULT NULL,
+  `variation_id` int UNSIGNED NOT NULL,
+  `quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `mfg_waste_percent` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `mfg_ingredient_group_id` int DEFAULT NULL,
+  `secondary_unit_quantity` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `quantity_returned` decimal(20,4) NOT NULL DEFAULT '0.0000',
+  `unit_price_before_discount` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `unit_price` decimal(22,4) DEFAULT NULL COMMENT 'Sell price excluding tax',
-  `line_discount_type` enum('fixed','percentage') DEFAULT NULL,
-  `line_discount_amount` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `line_discount_type` enum('fixed','percentage') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `line_discount_amount` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `unit_price_inc_tax` decimal(22,4) DEFAULT NULL COMMENT 'Sell price including tax',
   `item_tax` decimal(22,4) NOT NULL COMMENT 'Tax for one quantity',
-  `tax_id` int(10) UNSIGNED DEFAULT NULL,
-  `discount_id` int(11) DEFAULT NULL,
-  `lot_no_line_id` int(11) DEFAULT NULL,
-  `sell_line_note` text DEFAULT NULL,
-  `so_line_id` int(11) DEFAULT NULL,
-  `so_quantity_invoiced` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `res_service_staff_id` int(11) DEFAULT NULL,
-  `res_line_order_status` varchar(191) DEFAULT NULL,
-  `parent_sell_line_id` int(11) DEFAULT NULL,
-  `children_type` varchar(191) NOT NULL DEFAULT '' COMMENT 'Type of children for the parent, like modifier or combo',
-  `sub_unit_id` int(11) DEFAULT NULL,
+  `tax_id` int UNSIGNED DEFAULT NULL,
+  `discount_id` int DEFAULT NULL,
+  `lot_no_line_id` int DEFAULT NULL,
+  `sell_line_note` text COLLATE utf8mb4_unicode_ci,
+  `so_line_id` int DEFAULT NULL,
+  `so_quantity_invoiced` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `res_service_staff_id` int DEFAULT NULL,
+  `res_line_order_status` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `parent_sell_line_id` int DEFAULT NULL,
+  `children_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT 'Type of children for the parent, like modifier or combo',
+  `sub_unit_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `transaction_sell_lines_transaction_id_foreign` (`transaction_id`),
+  KEY `transaction_sell_lines_product_id_foreign` (`product_id`),
+  KEY `transaction_sell_lines_variation_id_foreign` (`variation_id`),
+  KEY `transaction_sell_lines_tax_id_foreign` (`tax_id`),
+  KEY `transaction_sell_lines_children_type_index` (`children_type`),
+  KEY `transaction_sell_lines_parent_sell_line_id_index` (`parent_sell_line_id`),
+  KEY `transaction_sell_lines_line_discount_type_index` (`line_discount_type`),
+  KEY `transaction_sell_lines_discount_id_index` (`discount_id`),
+  KEY `transaction_sell_lines_lot_no_line_id_index` (`lot_no_line_id`),
+  KEY `transaction_sell_lines_sub_unit_id_index` (`sub_unit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `transaction_sell_lines`
---
-
-INSERT INTO `transaction_sell_lines` (`id`, `transaction_id`, `product_id`, `kitchen_id`, `variation_id`, `quantity`, `mfg_waste_percent`, `mfg_ingredient_group_id`, `secondary_unit_quantity`, `quantity_returned`, `unit_price_before_discount`, `unit_price`, `line_discount_type`, `line_discount_amount`, `unit_price_inc_tax`, `item_tax`, `tax_id`, `discount_id`, `lot_no_line_id`, `sell_line_note`, `so_line_id`, `so_quantity_invoiced`, `res_service_staff_id`, `res_line_order_status`, `parent_sell_line_id`, `children_type`, `sub_unit_id`, `created_at`, `updated_at`) VALUES
-(1, 10, 6, NULL, 6, 10.0000, 0.0000, NULL, 0.0000, 0.0000, 13.7500, 13.7500, 'fixed', 0.0000, 15.8130, 2.0630, 13, NULL, NULL, '', NULL, 0.0000, NULL, NULL, NULL, '', NULL, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
 
 -- --------------------------------------------------------
 
@@ -4067,24 +4587,21 @@ INSERT INTO `transaction_sell_lines` (`id`, `transaction_id`, `product_id`, `kit
 -- Table structure for table `transaction_sell_lines_purchase_lines`
 --
 
-CREATE TABLE `transaction_sell_lines_purchase_lines` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `sell_line_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'id from transaction_sell_lines',
-  `stock_adjustment_line_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'id from stock_adjustment_lines',
-  `purchase_line_id` int(10) UNSIGNED NOT NULL COMMENT 'id from purchase_lines',
+DROP TABLE IF EXISTS `transaction_sell_lines_purchase_lines`;
+CREATE TABLE IF NOT EXISTS `transaction_sell_lines_purchase_lines` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `sell_line_id` int UNSIGNED DEFAULT NULL COMMENT 'id from transaction_sell_lines',
+  `stock_adjustment_line_id` int UNSIGNED DEFAULT NULL COMMENT 'id from stock_adjustment_lines',
+  `purchase_line_id` int UNSIGNED NOT NULL COMMENT 'id from purchase_lines',
   `quantity` decimal(22,4) NOT NULL,
-  `qty_returned` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `qty_returned` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sell_line_id` (`sell_line_id`),
+  KEY `stock_adjustment_line_id` (`stock_adjustment_line_id`),
+  KEY `purchase_line_id` (`purchase_line_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `transaction_sell_lines_purchase_lines`
---
-
-INSERT INTO `transaction_sell_lines_purchase_lines` (`id`, `sell_line_id`, `stock_adjustment_line_id`, `purchase_line_id`, `quantity`, `qty_returned`, `created_at`, `updated_at`) VALUES
-(1, 1, NULL, 23, 1.0000, 0.0000, '2024-03-03 23:26:28', '2024-03-03 23:26:28'),
-(2, 1, NULL, 0, 9.0000, 0.0000, '2024-03-03 23:26:28', '2024-03-03 23:26:28');
 
 -- --------------------------------------------------------
 
@@ -4092,17 +4609,20 @@ INSERT INTO `transaction_sell_lines_purchase_lines` (`id`, `sell_line_id`, `stoc
 -- Table structure for table `types_of_services`
 --
 
-CREATE TABLE `types_of_services` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `description` text DEFAULT NULL,
-  `business_id` int(11) NOT NULL,
-  `location_price_group` text DEFAULT NULL,
+DROP TABLE IF EXISTS `types_of_services`;
+CREATE TABLE IF NOT EXISTS `types_of_services` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `business_id` int NOT NULL,
+  `location_price_group` text COLLATE utf8mb4_unicode_ci,
   `packing_charge` decimal(22,4) DEFAULT NULL,
-  `packing_charge_type` enum('fixed','percent') DEFAULT NULL,
-  `enable_custom_fields` tinyint(1) NOT NULL DEFAULT 0,
+  `packing_charge_type` enum('fixed','percent') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enable_custom_fields` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `types_of_services_business_id_index` (`business_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4111,19 +4631,24 @@ CREATE TABLE `types_of_services` (
 -- Table structure for table `units`
 --
 
-CREATE TABLE `units` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `actual_name` varchar(191) NOT NULL,
-  `short_name` varchar(191) NOT NULL,
+DROP TABLE IF EXISTS `units`;
+CREATE TABLE IF NOT EXISTS `units` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int UNSIGNED NOT NULL,
+  `actual_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `short_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `allow_decimal` tinyint(1) NOT NULL,
-  `base_unit_id` int(11) DEFAULT NULL,
+  `base_unit_id` int DEFAULT NULL,
   `base_unit_multiplier` decimal(20,4) DEFAULT NULL,
-  `created_by` int(10) UNSIGNED NOT NULL,
+  `created_by` int UNSIGNED NOT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `units_business_id_foreign` (`business_id`),
+  KEY `units_created_by_foreign` (`created_by`),
+  KEY `units_base_unit_id_index` (`base_unit_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `units`
@@ -4138,62 +4663,71 @@ INSERT INTO `units` (`id`, `business_id`, `actual_name`, `short_name`, `allow_de
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_type` varchar(191) NOT NULL DEFAULT 'user',
-  `surname` char(10) DEFAULT NULL,
-  `first_name` varchar(191) NOT NULL,
-  `last_name` varchar(191) DEFAULT NULL,
-  `username` varchar(191) DEFAULT NULL,
-  `email` varchar(191) DEFAULT NULL,
-  `password` varchar(191) DEFAULT NULL,
-  `language` char(7) NOT NULL DEFAULT 'en',
-  `contact_no` char(15) DEFAULT NULL,
-  `address` text DEFAULT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
-  `business_id` int(10) UNSIGNED DEFAULT NULL,
-  `essentials_department_id` int(11) DEFAULT NULL,
-  `essentials_designation_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user',
+  `surname` char(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `username` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `language` char(7) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en',
+  `contact_no` char(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `business_id` int UNSIGNED DEFAULT NULL,
+  `essentials_department_id` int DEFAULT NULL,
+  `essentials_designation_id` int DEFAULT NULL,
   `essentials_salary` decimal(22,4) DEFAULT NULL,
-  `essentials_pay_period` varchar(191) DEFAULT NULL,
-  `essentials_pay_cycle` varchar(191) DEFAULT NULL,
+  `essentials_pay_period` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `essentials_pay_cycle` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `available_at` datetime DEFAULT NULL COMMENT 'Service staff avilable at. Calculated from product preparation_time_in_minutes',
   `paused_at` datetime DEFAULT NULL COMMENT 'Service staff available time paused at, Will be nulled on resume.',
   `max_sales_discount_percent` decimal(5,2) DEFAULT NULL,
-  `allow_login` tinyint(1) NOT NULL DEFAULT 1,
-  `status` enum('active','inactive','terminated') NOT NULL DEFAULT 'active',
-  `crm_contact_id` int(10) UNSIGNED DEFAULT NULL,
-  `is_cmmsn_agnt` tinyint(1) NOT NULL DEFAULT 0,
-  `cmmsn_percent` decimal(4,2) NOT NULL DEFAULT 0.00,
-  `selected_contacts` tinyint(1) NOT NULL DEFAULT 0,
+  `allow_login` tinyint(1) NOT NULL DEFAULT '1',
+  `status` enum('active','inactive','terminated') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `crm_contact_id` int UNSIGNED DEFAULT NULL,
+  `is_cmmsn_agnt` tinyint(1) NOT NULL DEFAULT '0',
+  `cmmsn_percent` decimal(4,2) NOT NULL DEFAULT '0.00',
+  `selected_contacts` tinyint(1) NOT NULL DEFAULT '0',
   `dob` date DEFAULT NULL,
-  `gender` varchar(191) DEFAULT NULL,
-  `marital_status` enum('married','unmarried','divorced') DEFAULT NULL,
-  `blood_group` char(10) DEFAULT NULL,
-  `contact_number` char(20) DEFAULT NULL,
-  `alt_number` varchar(191) DEFAULT NULL,
-  `family_number` varchar(191) DEFAULT NULL,
-  `fb_link` varchar(191) DEFAULT NULL,
-  `twitter_link` varchar(191) DEFAULT NULL,
-  `social_media_1` varchar(191) DEFAULT NULL,
-  `social_media_2` varchar(191) DEFAULT NULL,
-  `permanent_address` text DEFAULT NULL,
-  `current_address` text DEFAULT NULL,
-  `guardian_name` varchar(191) DEFAULT NULL,
-  `custom_field_1` varchar(191) DEFAULT NULL,
-  `custom_field_2` varchar(191) DEFAULT NULL,
-  `custom_field_3` varchar(191) DEFAULT NULL,
-  `custom_field_4` varchar(191) DEFAULT NULL,
-  `bank_details` longtext DEFAULT NULL,
-  `id_proof_name` varchar(191) DEFAULT NULL,
-  `id_proof_number` varchar(191) DEFAULT NULL,
-  `location_id` int(11) DEFAULT NULL COMMENT 'user primary work location',
-  `crm_department` varchar(191) DEFAULT NULL COMMENT 'Contact person''s department',
-  `crm_designation` varchar(191) DEFAULT NULL COMMENT 'Contact person''s designation',
+  `gender` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `marital_status` enum('married','unmarried','divorced') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `blood_group` char(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_number` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alt_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `family_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fb_link` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `twitter_link` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `social_media_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `social_media_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `permanent_address` text COLLATE utf8mb4_unicode_ci,
+  `current_address` text COLLATE utf8mb4_unicode_ci,
+  `guardian_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_field_4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bank_details` longtext COLLATE utf8mb4_unicode_ci,
+  `id_proof_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_proof_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location_id` int DEFAULT NULL COMMENT 'user primary work location',
+  `crm_department` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Contact person''s department',
+  `crm_designation` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Contact person''s designation',
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_username_unique` (`username`),
+  KEY `users_business_id_foreign` (`business_id`),
+  KEY `users_user_type_index` (`user_type`),
+  KEY `users_crm_contact_id_foreign` (`crm_contact_id`),
+  KEY `users_crm_contact_id_index` (`crm_contact_id`),
+  KEY `users_essentials_department_id_index` (`essentials_department_id`),
+  KEY `users_essentials_designation_id_index` (`essentials_designation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
@@ -4208,10 +4742,14 @@ INSERT INTO `users` (`id`, `user_type`, `surname`, `first_name`, `last_name`, `u
 -- Table structure for table `user_contact_access`
 --
 
-CREATE TABLE `user_contact_access` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `contact_id` int(11) NOT NULL
+DROP TABLE IF EXISTS `user_contact_access`;
+CREATE TABLE IF NOT EXISTS `user_contact_access` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `contact_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_contact_access_user_id_index` (`user_id`),
+  KEY `user_contact_access_contact_id_index` (`contact_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4220,24 +4758,32 @@ CREATE TABLE `user_contact_access` (
 -- Table structure for table `variations`
 --
 
-CREATE TABLE `variations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `sub_sku` varchar(191) DEFAULT NULL,
-  `product_variation_id` int(10) UNSIGNED NOT NULL,
-  `woocommerce_variation_id` int(11) DEFAULT NULL,
-  `variation_value_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `variations`;
+CREATE TABLE IF NOT EXISTS `variations` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `product_id` int UNSIGNED NOT NULL,
+  `sub_sku` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_variation_id` int UNSIGNED NOT NULL,
+  `woocommerce_variation_id` int DEFAULT NULL,
+  `variation_value_id` int DEFAULT NULL,
   `default_purchase_price` decimal(22,4) DEFAULT NULL,
-  `dpp_inc_tax` decimal(22,4) NOT NULL DEFAULT 0.0000,
-  `profit_percent` decimal(22,4) NOT NULL DEFAULT 0.0000,
+  `dpp_inc_tax` decimal(22,4) NOT NULL DEFAULT '0.0000',
+  `profit_percent` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `default_sell_price` decimal(22,4) DEFAULT NULL,
   `sell_price_inc_tax` decimal(22,4) DEFAULT NULL COMMENT 'Sell price including tax',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `combo_variations` text DEFAULT NULL COMMENT 'Contains the combo variation details'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `combo_variations` text COLLATE utf8mb4_unicode_ci COMMENT 'Contains the combo variation details',
+  PRIMARY KEY (`id`),
+  KEY `variations_product_id_foreign` (`product_id`),
+  KEY `variations_product_variation_id_foreign` (`product_variation_id`),
+  KEY `variations_name_index` (`name`),
+  KEY `variations_sub_sku_index` (`sub_sku`),
+  KEY `variations_variation_value_id_index` (`variation_value_id`),
+  KEY `variations_woocommerce_variation_id_index` (`woocommerce_variation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `variations`
@@ -4253,14 +4799,18 @@ INSERT INTO `variations` (`id`, `name`, `product_id`, `sub_sku`, `product_variat
 -- Table structure for table `variation_group_prices`
 --
 
-CREATE TABLE `variation_group_prices` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `variation_id` int(10) UNSIGNED NOT NULL,
-  `price_group_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `variation_group_prices`;
+CREATE TABLE IF NOT EXISTS `variation_group_prices` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `variation_id` int UNSIGNED NOT NULL,
+  `price_group_id` int UNSIGNED NOT NULL,
   `price_inc_tax` decimal(22,4) NOT NULL,
-  `price_type` varchar(191) NOT NULL DEFAULT 'fixed',
+  `price_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'fixed',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `variation_group_prices_variation_id_foreign` (`variation_id`),
+  KEY `variation_group_prices_price_group_id_foreign` (`price_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4269,16 +4819,22 @@ CREATE TABLE `variation_group_prices` (
 -- Table structure for table `variation_location_details`
 --
 
-CREATE TABLE `variation_location_details` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `product_id` int(10) UNSIGNED NOT NULL,
-  `product_variation_id` int(10) UNSIGNED NOT NULL COMMENT 'id from product_variations table',
-  `variation_id` int(10) UNSIGNED NOT NULL,
-  `location_id` int(10) UNSIGNED NOT NULL,
-  `qty_available` decimal(22,4) NOT NULL DEFAULT 0.0000,
+DROP TABLE IF EXISTS `variation_location_details`;
+CREATE TABLE IF NOT EXISTS `variation_location_details` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id` int UNSIGNED NOT NULL,
+  `product_variation_id` int UNSIGNED NOT NULL COMMENT 'id from product_variations table',
+  `variation_id` int UNSIGNED NOT NULL,
+  `location_id` int UNSIGNED NOT NULL,
+  `qty_available` decimal(22,4) NOT NULL DEFAULT '0.0000',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `variation_location_details_location_id_foreign` (`location_id`),
+  KEY `variation_location_details_product_id_index` (`product_id`),
+  KEY `variation_location_details_product_variation_id_index` (`product_variation_id`),
+  KEY `variation_location_details_variation_id_index` (`variation_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `variation_location_details`
@@ -4294,13 +4850,17 @@ INSERT INTO `variation_location_details` (`id`, `product_id`, `product_variation
 -- Table structure for table `variation_templates`
 --
 
-CREATE TABLE `variation_templates` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(10) UNSIGNED NOT NULL,
-  `woocommerce_attr_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `variation_templates`;
+CREATE TABLE IF NOT EXISTS `variation_templates` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int UNSIGNED NOT NULL,
+  `woocommerce_attr_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `variation_templates_business_id_foreign` (`business_id`),
+  KEY `variation_templates_woocommerce_attr_id_index` (`woocommerce_attr_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4309,12 +4869,16 @@ CREATE TABLE `variation_templates` (
 -- Table structure for table `variation_value_templates`
 --
 
-CREATE TABLE `variation_value_templates` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `variation_template_id` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `variation_value_templates`;
+CREATE TABLE IF NOT EXISTS `variation_value_templates` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `variation_template_id` int UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `variation_value_templates_name_index` (`name`),
+  KEY `variation_value_templates_variation_template_id_index` (`variation_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4323,15 +4887,19 @@ CREATE TABLE `variation_value_templates` (
 -- Table structure for table `warranties`
 --
 
-CREATE TABLE `warranties` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `description` text DEFAULT NULL,
-  `duration` int(11) NOT NULL,
-  `duration_type` enum('days','months','years') NOT NULL,
+DROP TABLE IF EXISTS `warranties`;
+CREATE TABLE IF NOT EXISTS `warranties` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `business_id` int NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `duration` int NOT NULL,
+  `duration_type` enum('days','months','years') COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `warranties_business_id_index` (`business_id`),
+  KEY `warranties_duration_type_index` (`duration_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -4340,1909 +4908,19 @@ CREATE TABLE `warranties` (
 -- Table structure for table `woocommerce_sync_logs`
 --
 
-CREATE TABLE `woocommerce_sync_logs` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `business_id` int(11) NOT NULL,
-  `sync_type` varchar(191) NOT NULL,
-  `operation_type` varchar(191) DEFAULT NULL,
-  `data` longtext DEFAULT NULL,
-  `details` longtext DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
+DROP TABLE IF EXISTS `woocommerce_sync_logs`;
+CREATE TABLE IF NOT EXISTS `woocommerce_sync_logs` (
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `business_id` int NOT NULL,
+  `sync_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `operation_type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `data` longtext COLLATE utf8mb4_unicode_ci,
+  `details` longtext COLLATE utf8mb4_unicode_ci,
+  `created_by` int NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `accounting_accounts`
---
-ALTER TABLE `accounting_accounts`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `accounting_accounts_transactions`
---
-ALTER TABLE `accounting_accounts_transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `accounting_account_id` (`accounting_account_id`);
-
---
--- Indexes for table `accounting_account_types`
---
-ALTER TABLE `accounting_account_types`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `accounting_acc_trans_mappings`
---
-ALTER TABLE `accounting_acc_trans_mappings`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `accounting_budgets`
---
-ALTER TABLE `accounting_budgets`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `accounts`
---
-ALTER TABLE `accounts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `accounts_business_id_index` (`business_id`),
-  ADD KEY `accounts_account_type_id_index` (`account_type_id`),
-  ADD KEY `accounts_created_by_index` (`created_by`);
-
---
--- Indexes for table `account_categories`
---
-ALTER TABLE `account_categories`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `account_categories_business_id_foreign` (`business_id`),
-  ADD KEY `account_categories_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `account_transactions`
---
-ALTER TABLE `account_transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `account_transactions_account_id_index` (`account_id`),
-  ADD KEY `account_transactions_transaction_id_index` (`transaction_id`),
-  ADD KEY `account_transactions_transaction_payment_id_index` (`transaction_payment_id`),
-  ADD KEY `account_transactions_transfer_transaction_id_index` (`transfer_transaction_id`),
-  ADD KEY `account_transactions_created_by_index` (`created_by`),
-  ADD KEY `account_transactions_type_index` (`type`),
-  ADD KEY `account_transactions_sub_type_index` (`sub_type`),
-  ADD KEY `account_transactions_operation_date_index` (`operation_date`);
-
---
--- Indexes for table `account_types`
---
-ALTER TABLE `account_types`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `account_types_parent_account_type_id_index` (`parent_account_type_id`),
-  ADD KEY `account_types_business_id_index` (`business_id`);
-
---
--- Indexes for table `activity_log`
---
-ALTER TABLE `activity_log`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `activity_log_log_name_index` (`log_name`);
-
---
--- Indexes for table `assets`
---
-ALTER TABLE `assets`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `assets_business_id_foreign` (`business_id`),
-  ADD KEY `assets_category_id_foreign` (`category_id`),
-  ADD KEY `assets_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `asset_maintenances`
---
-ALTER TABLE `asset_maintenances`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `asset_maintenances_business_id_index` (`business_id`),
-  ADD KEY `asset_maintenances_asset_id_index` (`asset_id`),
-  ADD KEY `asset_maintenances_status_index` (`status`),
-  ADD KEY `asset_maintenances_priority_index` (`priority`),
-  ADD KEY `asset_maintenances_created_by_index` (`created_by`),
-  ADD KEY `asset_maintenances_assigned_to_index` (`assigned_to`);
-
---
--- Indexes for table `asset_transactions`
---
-ALTER TABLE `asset_transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `asset_transactions_business_id_foreign` (`business_id`),
-  ADD KEY `asset_transactions_asset_id_foreign` (`asset_id`),
-  ADD KEY `asset_transactions_receiver_foreign` (`receiver`),
-  ADD KEY `asset_transactions_parent_id_foreign` (`parent_id`),
-  ADD KEY `asset_transactions_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `asset_warranties`
---
-ALTER TABLE `asset_warranties`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `barcodes`
---
-ALTER TABLE `barcodes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `barcodes_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `bookings`
---
-ALTER TABLE `bookings`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `bookings_contact_id_foreign` (`contact_id`),
-  ADD KEY `bookings_business_id_foreign` (`business_id`),
-  ADD KEY `bookings_created_by_foreign` (`created_by`),
-  ADD KEY `bookings_table_id_index` (`table_id`),
-  ADD KEY `bookings_waiter_id_index` (`waiter_id`),
-  ADD KEY `bookings_location_id_index` (`location_id`),
-  ADD KEY `bookings_booking_status_index` (`booking_status`),
-  ADD KEY `bookings_correspondent_id_index` (`correspondent_id`);
-
---
--- Indexes for table `brands`
---
-ALTER TABLE `brands`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `brands_business_id_foreign` (`business_id`),
-  ADD KEY `brands_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `business`
---
-ALTER TABLE `business`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `business_owner_id_foreign` (`owner_id`),
-  ADD KEY `business_currency_id_foreign` (`currency_id`),
-  ADD KEY `business_default_sales_tax_foreign` (`default_sales_tax`);
-
---
--- Indexes for table `business_locations`
---
-ALTER TABLE `business_locations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `business_locations_business_id_index` (`business_id`),
-  ADD KEY `business_locations_invoice_scheme_id_foreign` (`invoice_scheme_id`),
-  ADD KEY `business_locations_invoice_layout_id_foreign` (`invoice_layout_id`),
-  ADD KEY `business_locations_sale_invoice_layout_id_index` (`sale_invoice_layout_id`),
-  ADD KEY `business_locations_selling_price_group_id_index` (`selling_price_group_id`),
-  ADD KEY `business_locations_receipt_printer_type_index` (`receipt_printer_type`),
-  ADD KEY `business_locations_printer_id_index` (`printer_id`);
-
---
--- Indexes for table `button_categories`
---
-ALTER TABLE `button_categories`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `button_categories_accessory_type_name_unique` (`accessory_type_name`),
-  ADD KEY `button_categories_accessory_id_foreign` (`accessory_id`);
-
---
--- Indexes for table `cash_denominations`
---
-ALTER TABLE `cash_denominations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cash_denominations_model_type_model_id_index` (`model_type`,`model_id`);
-
---
--- Indexes for table `cash_registers`
---
-ALTER TABLE `cash_registers`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cash_registers_business_id_foreign` (`business_id`),
-  ADD KEY `cash_registers_user_id_foreign` (`user_id`),
-  ADD KEY `cash_registers_location_id_index` (`location_id`);
-
---
--- Indexes for table `cash_register_transactions`
---
-ALTER TABLE `cash_register_transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cash_register_transactions_cash_register_id_foreign` (`cash_register_id`),
-  ADD KEY `cash_register_transactions_transaction_id_index` (`transaction_id`),
-  ADD KEY `cash_register_transactions_type_index` (`type`),
-  ADD KEY `cash_register_transactions_transaction_type_index` (`transaction_type`);
-
---
--- Indexes for table `categories`
---
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `categories_business_id_foreign` (`business_id`),
-  ADD KEY `categories_created_by_foreign` (`created_by`),
-  ADD KEY `categories_parent_id_index` (`parent_id`),
-  ADD KEY `categories_woocommerce_cat_id_index` (`woocommerce_cat_id`);
-
---
--- Indexes for table `categorizables`
---
-ALTER TABLE `categorizables`
-  ADD KEY `categorizables_categorizable_type_categorizable_id_index` (`categorizable_type`,`categorizable_id`);
-
---
--- Indexes for table `contacts`
---
-ALTER TABLE `contacts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `contacts_business_id_foreign` (`business_id`),
-  ADD KEY `contacts_created_by_foreign` (`created_by`),
-  ADD KEY `contacts_type_index` (`type`),
-  ADD KEY `contacts_contact_status_index` (`contact_status`),
-  ADD KEY `contacts_crm_source_index` (`crm_source`),
-  ADD KEY `contacts_crm_life_stage_index` (`crm_life_stage`),
-  ADD KEY `contacts_converted_by_index` (`converted_by`),
-  ADD KEY `account_id` (`account_id`);
-
---
--- Indexes for table `crm_call_logs`
---
-ALTER TABLE `crm_call_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_call_logs_business_id_index` (`business_id`),
-  ADD KEY `crm_call_logs_user_id_index` (`user_id`),
-  ADD KEY `crm_call_logs_contact_id_index` (`contact_id`),
-  ADD KEY `crm_call_logs_created_by_index` (`created_by`);
-
---
--- Indexes for table `crm_campaigns`
---
-ALTER TABLE `crm_campaigns`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_campaigns_business_id_foreign` (`business_id`),
-  ADD KEY `crm_campaigns_created_by_index` (`created_by`);
-
---
--- Indexes for table `crm_contact_person_commissions`
---
-ALTER TABLE `crm_contact_person_commissions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `crm_lead_users`
---
-ALTER TABLE `crm_lead_users`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_lead_users_user_id_index` (`user_id`),
-  ADD KEY `crm_lead_users_contact_id_index` (`contact_id`);
-
---
--- Indexes for table `crm_marketplaces`
---
-ALTER TABLE `crm_marketplaces`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `crm_proposals`
---
-ALTER TABLE `crm_proposals`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_proposals_business_id_foreign` (`business_id`),
-  ADD KEY `crm_proposals_contact_id_foreign` (`contact_id`),
-  ADD KEY `crm_proposals_sent_by_index` (`sent_by`);
-
---
--- Indexes for table `crm_proposal_templates`
---
-ALTER TABLE `crm_proposal_templates`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_proposal_templates_business_id_foreign` (`business_id`),
-  ADD KEY `crm_proposal_templates_created_by_index` (`created_by`);
-
---
--- Indexes for table `crm_schedules`
---
-ALTER TABLE `crm_schedules`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_schedules_created_by_index` (`created_by`),
-  ADD KEY `crm_schedules_business_id_index` (`business_id`),
-  ADD KEY `crm_schedules_contact_id_index` (`contact_id`),
-  ADD KEY `crm_schedules_schedule_type_index` (`schedule_type`),
-  ADD KEY `crm_schedules_notify_type_index` (`notify_type`);
-
---
--- Indexes for table `crm_schedule_logs`
---
-ALTER TABLE `crm_schedule_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_schedule_logs_schedule_id_foreign` (`schedule_id`),
-  ADD KEY `crm_schedule_logs_created_by_index` (`created_by`);
-
---
--- Indexes for table `crm_schedule_users`
---
-ALTER TABLE `crm_schedule_users`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `crm_schedule_users_schedule_id_foreign` (`schedule_id`),
-  ADD KEY `crm_schedule_users_user_id_index` (`user_id`);
-
---
--- Indexes for table `currencies`
---
-ALTER TABLE `currencies`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `customer_groups`
---
-ALTER TABLE `customer_groups`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `customer_groups_business_id_foreign` (`business_id`),
-  ADD KEY `customer_groups_created_by_index` (`created_by`),
-  ADD KEY `customer_groups_price_calculation_type_index` (`price_calculation_type`),
-  ADD KEY `customer_groups_selling_price_group_id_index` (`selling_price_group_id`);
-
---
--- Indexes for table `dashboard_configurations`
---
-ALTER TABLE `dashboard_configurations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `dashboard_configurations_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `discounts`
---
-ALTER TABLE `discounts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `discounts_business_id_index` (`business_id`),
-  ADD KEY `discounts_brand_id_index` (`brand_id`),
-  ADD KEY `discounts_category_id_index` (`category_id`),
-  ADD KEY `discounts_location_id_index` (`location_id`),
-  ADD KEY `discounts_priority_index` (`priority`),
-  ADD KEY `discounts_spg_index` (`spg`);
-
---
--- Indexes for table `discount_variations`
---
-ALTER TABLE `discount_variations`
-  ADD KEY `discount_variations_discount_id_index` (`discount_id`),
-  ADD KEY `discount_variations_variation_id_index` (`variation_id`);
-
---
--- Indexes for table `document_and_notes`
---
-ALTER TABLE `document_and_notes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `document_and_notes_business_id_index` (`business_id`),
-  ADD KEY `document_and_notes_notable_id_index` (`notable_id`),
-  ADD KEY `document_and_notes_created_by_index` (`created_by`);
-
---
--- Indexes for table `essentials_allowances_and_deductions`
---
-ALTER TABLE `essentials_allowances_and_deductions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_allowances_and_deductions_business_id_index` (`business_id`);
-
---
--- Indexes for table `essentials_attendances`
---
-ALTER TABLE `essentials_attendances`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_attendances_user_id_index` (`user_id`),
-  ADD KEY `essentials_attendances_business_id_index` (`business_id`),
-  ADD KEY `essentials_attendances_essentials_shift_id_index` (`essentials_shift_id`);
-
---
--- Indexes for table `essentials_documents`
---
-ALTER TABLE `essentials_documents`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `essentials_document_shares`
---
-ALTER TABLE `essentials_document_shares`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_document_shares_document_id_index` (`document_id`),
-  ADD KEY `essentials_document_shares_value_type_index` (`value_type`);
-
---
--- Indexes for table `essentials_holidays`
---
-ALTER TABLE `essentials_holidays`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_holidays_business_id_index` (`business_id`),
-  ADD KEY `essentials_holidays_location_id_index` (`location_id`);
-
---
--- Indexes for table `essentials_kb`
---
-ALTER TABLE `essentials_kb`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_kb_business_id_index` (`business_id`),
-  ADD KEY `essentials_kb_parent_id_index` (`parent_id`),
-  ADD KEY `essentials_kb_created_by_index` (`created_by`);
-
---
--- Indexes for table `essentials_kb_users`
---
-ALTER TABLE `essentials_kb_users`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_kb_users_kb_id_index` (`kb_id`),
-  ADD KEY `essentials_kb_users_user_id_index` (`user_id`);
-
---
--- Indexes for table `essentials_leaves`
---
-ALTER TABLE `essentials_leaves`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_leaves_essentials_leave_type_id_index` (`essentials_leave_type_id`),
-  ADD KEY `essentials_leaves_business_id_index` (`business_id`),
-  ADD KEY `essentials_leaves_user_id_index` (`user_id`);
-
---
--- Indexes for table `essentials_leave_types`
---
-ALTER TABLE `essentials_leave_types`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_leave_types_business_id_index` (`business_id`);
-
---
--- Indexes for table `essentials_messages`
---
-ALTER TABLE `essentials_messages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_messages_business_id_index` (`business_id`),
-  ADD KEY `essentials_messages_user_id_index` (`user_id`),
-  ADD KEY `essentials_messages_location_id_index` (`location_id`);
-
---
--- Indexes for table `essentials_payroll_groups`
---
-ALTER TABLE `essentials_payroll_groups`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `essentials_payroll_group_transactions`
---
-ALTER TABLE `essentials_payroll_group_transactions`
-  ADD KEY `essentials_payroll_group_transactions_payroll_group_id_foreign` (`payroll_group_id`);
-
---
--- Indexes for table `essentials_reminders`
---
-ALTER TABLE `essentials_reminders`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_reminders_business_id_index` (`business_id`),
-  ADD KEY `essentials_reminders_user_id_index` (`user_id`);
-
---
--- Indexes for table `essentials_shifts`
---
-ALTER TABLE `essentials_shifts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_shifts_type_index` (`type`),
-  ADD KEY `essentials_shifts_business_id_index` (`business_id`);
-
---
--- Indexes for table `essentials_todo_comments`
---
-ALTER TABLE `essentials_todo_comments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_todo_comments_task_id_index` (`task_id`),
-  ADD KEY `essentials_todo_comments_comment_by_index` (`comment_by`);
-
---
--- Indexes for table `essentials_to_dos`
---
-ALTER TABLE `essentials_to_dos`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_to_dos_status_index` (`status`),
-  ADD KEY `essentials_to_dos_priority_index` (`priority`),
-  ADD KEY `essentials_to_dos_created_by_index` (`created_by`),
-  ADD KEY `essentials_to_dos_business_id_index` (`business_id`),
-  ADD KEY `essentials_to_dos_task_id_index` (`task_id`);
-
---
--- Indexes for table `essentials_user_allowance_and_deductions`
---
-ALTER TABLE `essentials_user_allowance_and_deductions`
-  ADD KEY `essentials_user_allowance_and_deductions_user_id_index` (`user_id`),
-  ADD KEY `allow_deduct_index` (`allowance_deduction_id`);
-
---
--- Indexes for table `essentials_user_sales_targets`
---
-ALTER TABLE `essentials_user_sales_targets`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `essentials_user_shifts`
---
-ALTER TABLE `essentials_user_shifts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `essentials_user_shifts_user_id_index` (`user_id`),
-  ADD KEY `essentials_user_shifts_essentials_shift_id_index` (`essentials_shift_id`);
-
---
--- Indexes for table `expense_categories`
---
-ALTER TABLE `expense_categories`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `expense_categories_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `financial_statements`
---
-ALTER TABLE `financial_statements`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `financial_statements_business_id_foreign` (`business_id`),
-  ADD KEY `financial_statements_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `global_currencies`
---
-ALTER TABLE `global_currencies`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `group_sub_taxes`
---
-ALTER TABLE `group_sub_taxes`
-  ADD KEY `group_sub_taxes_group_tax_id_foreign` (`group_tax_id`),
-  ADD KEY `group_sub_taxes_tax_id_foreign` (`tax_id`);
-
---
--- Indexes for table `invoice_layouts`
---
-ALTER TABLE `invoice_layouts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `invoice_layouts_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `invoice_schemes`
---
-ALTER TABLE `invoice_schemes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `invoice_schemes_business_id_foreign` (`business_id`),
-  ADD KEY `invoice_schemes_scheme_type_index` (`scheme_type`),
-  ADD KEY `invoice_schemes_number_type_index` (`number_type`);
-
---
--- Indexes for table `kitchens`
---
-ALTER TABLE `kitchens`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `kitchens_business_id_foreign` (`business_id`),
-  ADD KEY `kitchens_category_id_foreign` (`category_id`);
-
---
--- Indexes for table `line_details`
---
-ALTER TABLE `line_details`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `line_details_line_id_foreign` (`line_id`),
-  ADD KEY `line_details_transaction_id_foreign` (`transaction_id`);
-
---
--- Indexes for table `main_accounts`
---
-ALTER TABLE `main_accounts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `main_accounts_business_id_foreign` (`business_id`),
-  ADD KEY `main_accounts_account_category_id_foreign` (`account_category_id`),
-  ADD KEY `main_accounts_financial_statement_id_foreign` (`financial_statement_id`),
-  ADD KEY `main_accounts_created_by_foreign` (`created_by`);
-
---
--- Indexes for table `media`
---
-ALTER TABLE `media`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `media_model_type_model_id_index` (`model_type`,`model_id`),
-  ADD KEY `media_business_id_index` (`business_id`),
-  ADD KEY `media_uploaded_by_index` (`uploaded_by`),
-  ADD KEY `media_woocommerce_media_id_index` (`woocommerce_media_id`);
-
---
--- Indexes for table `mfg_ingredient_groups`
---
-ALTER TABLE `mfg_ingredient_groups`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `mfg_recipes`
---
-ALTER TABLE `mfg_recipes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mfg_recipes_product_id_index` (`product_id`),
-  ADD KEY `mfg_recipes_variation_id_index` (`variation_id`);
-
---
--- Indexes for table `mfg_recipe_ingredients`
---
-ALTER TABLE `mfg_recipe_ingredients`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `mfg_recipe_ingredients_mfg_recipe_id_index` (`mfg_recipe_id`),
-  ADD KEY `mfg_recipe_ingredients_variation_id_index` (`variation_id`),
-  ADD KEY `mfg_recipe_ingredients_sub_unit_id_index` (`sub_unit_id`);
-
---
--- Indexes for table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `model_has_permissions`
---
-ALTER TABLE `model_has_permissions`
-  ADD PRIMARY KEY (`permission_id`,`model_id`,`model_type`),
-  ADD KEY `model_has_permissions_model_type_model_id_index` (`model_type`,`model_id`);
-
---
--- Indexes for table `model_has_roles`
---
-ALTER TABLE `model_has_roles`
-  ADD PRIMARY KEY (`role_id`,`model_id`,`model_type`),
-  ADD KEY `model_has_roles_model_type_model_id_index` (`model_type`,`model_id`);
-
---
--- Indexes for table `notifications`
---
-ALTER TABLE `notifications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `notifications_notifiable_type_notifiable_id_index` (`notifiable_type`,`notifiable_id`);
-
---
--- Indexes for table `notification_templates`
---
-ALTER TABLE `notification_templates`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `oauth_access_tokens`
---
-ALTER TABLE `oauth_access_tokens`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `oauth_access_tokens_user_id_index` (`user_id`);
-
---
--- Indexes for table `oauth_auth_codes`
---
-ALTER TABLE `oauth_auth_codes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `oauth_clients`
---
-ALTER TABLE `oauth_clients`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `oauth_clients_user_id_index` (`user_id`);
-
---
--- Indexes for table `oauth_personal_access_clients`
---
-ALTER TABLE `oauth_personal_access_clients`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `oauth_personal_access_clients_client_id_index` (`client_id`);
-
---
--- Indexes for table `oauth_refresh_tokens`
---
-ALTER TABLE `oauth_refresh_tokens`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `oauth_refresh_tokens_access_token_id_index` (`access_token_id`);
-
---
--- Indexes for table `order_complete`
---
-ALTER TABLE `order_complete`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `business_id` (`business_id`),
-  ADD KEY `kitchen_id` (`kitchen_id`),
-  ADD KEY `line_id` (`line_id`);
-
---
--- Indexes for table `order_status`
---
-ALTER TABLE `order_status`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `order_status_transaction_id_foreign` (`transaction_id`),
-  ADD KEY `order_status_business_id_foreign` (`business_id`),
-  ADD KEY `order_status_kitchen_id_foreign` (`kitchen_id`);
-
---
--- Indexes for table `packages`
---
-ALTER TABLE `packages`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `password_resets`
---
-ALTER TABLE `password_resets`
-  ADD KEY `password_resets_email_index` (`email`);
-
---
--- Indexes for table `permissions`
---
-ALTER TABLE `permissions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `pjt_invoice_lines`
---
-ALTER TABLE `pjt_invoice_lines`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_invoice_lines_transaction_id_foreign` (`transaction_id`),
-  ADD KEY `pjt_invoice_lines_tax_rate_id_index` (`tax_rate_id`);
-
---
--- Indexes for table `pjt_projects`
---
-ALTER TABLE `pjt_projects`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_projects_business_id_index` (`business_id`),
-  ADD KEY `pjt_projects_contact_id_index` (`contact_id`),
-  ADD KEY `pjt_projects_lead_id_index` (`lead_id`),
-  ADD KEY `pjt_projects_created_by_index` (`created_by`);
-
---
--- Indexes for table `pjt_project_members`
---
-ALTER TABLE `pjt_project_members`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_project_members_project_id_foreign` (`project_id`),
-  ADD KEY `pjt_project_members_user_id_index` (`user_id`);
-
---
--- Indexes for table `pjt_project_tasks`
---
-ALTER TABLE `pjt_project_tasks`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_project_tasks_project_id_foreign` (`project_id`),
-  ADD KEY `pjt_project_tasks_business_id_index` (`business_id`),
-  ADD KEY `pjt_project_tasks_created_by_index` (`created_by`);
-
---
--- Indexes for table `pjt_project_task_comments`
---
-ALTER TABLE `pjt_project_task_comments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_project_task_comments_project_task_id_foreign` (`project_task_id`);
-
---
--- Indexes for table `pjt_project_task_members`
---
-ALTER TABLE `pjt_project_task_members`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_project_task_members_project_task_id_foreign` (`project_task_id`),
-  ADD KEY `pjt_project_task_members_user_id_index` (`user_id`);
-
---
--- Indexes for table `pjt_project_time_logs`
---
-ALTER TABLE `pjt_project_time_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pjt_project_time_logs_project_id_foreign` (`project_id`),
-  ADD KEY `pjt_project_time_logs_project_task_id_foreign` (`project_task_id`),
-  ADD KEY `pjt_project_time_logs_user_id_index` (`user_id`),
-  ADD KEY `pjt_project_time_logs_created_by_index` (`created_by`);
-
---
--- Indexes for table `printers`
---
-ALTER TABLE `printers`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `printers_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `products`
---
-ALTER TABLE `products`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `products_brand_id_foreign` (`brand_id`),
-  ADD KEY `products_category_id_foreign` (`category_id`),
-  ADD KEY `products_sub_category_id_foreign` (`sub_category_id`),
-  ADD KEY `products_tax_foreign` (`tax`),
-  ADD KEY `products_name_index` (`name`),
-  ADD KEY `products_business_id_index` (`business_id`),
-  ADD KEY `products_unit_id_index` (`unit_id`),
-  ADD KEY `products_created_by_index` (`created_by`),
-  ADD KEY `products_warranty_id_index` (`warranty_id`),
-  ADD KEY `products_type_index` (`type`),
-  ADD KEY `products_tax_type_index` (`tax_type`),
-  ADD KEY `products_barcode_type_index` (`barcode_type`),
-  ADD KEY `products_secondary_unit_id_index` (`secondary_unit_id`),
-  ADD KEY `products_repair_model_id_index` (`repair_model_id`),
-  ADD KEY `products_woocommerce_product_id_index` (`woocommerce_product_id`),
-  ADD KEY `products_woocommerce_media_id_index` (`woocommerce_media_id`);
-
---
--- Indexes for table `product_locations`
---
-ALTER TABLE `product_locations`
-  ADD KEY `product_locations_product_id_index` (`product_id`),
-  ADD KEY `product_locations_location_id_index` (`location_id`);
-
---
--- Indexes for table `product_racks`
---
-ALTER TABLE `product_racks`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `product_racks_business_id_index` (`business_id`),
-  ADD KEY `product_racks_location_id_index` (`location_id`),
-  ADD KEY `product_racks_product_id_index` (`product_id`);
-
---
--- Indexes for table `product_variations`
---
-ALTER TABLE `product_variations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `product_variations_name_index` (`name`),
-  ADD KEY `product_variations_product_id_index` (`product_id`);
-
---
--- Indexes for table `purchase_lines`
---
-ALTER TABLE `purchase_lines`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `purchase_lines_transaction_id_foreign` (`transaction_id`),
-  ADD KEY `purchase_lines_product_id_foreign` (`product_id`),
-  ADD KEY `purchase_lines_variation_id_foreign` (`variation_id`),
-  ADD KEY `purchase_lines_tax_id_foreign` (`tax_id`),
-  ADD KEY `purchase_lines_sub_unit_id_index` (`sub_unit_id`),
-  ADD KEY `purchase_lines_lot_number_index` (`lot_number`);
-
---
--- Indexes for table `reference_counts`
---
-ALTER TABLE `reference_counts`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `reference_counts_business_id_index` (`business_id`);
-
---
--- Indexes for table `repair_device_models`
---
-ALTER TABLE `repair_device_models`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `repair_device_models_business_id_index` (`business_id`),
-  ADD KEY `repair_device_models_brand_id_index` (`brand_id`),
-  ADD KEY `repair_device_models_device_id_index` (`device_id`),
-  ADD KEY `repair_device_models_created_by_index` (`created_by`);
-
---
--- Indexes for table `repair_job_sheets`
---
-ALTER TABLE `repair_job_sheets`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `repair_job_sheets_business_id_index` (`business_id`),
-  ADD KEY `repair_job_sheets_location_id_index` (`location_id`),
-  ADD KEY `repair_job_sheets_contact_id_index` (`contact_id`),
-  ADD KEY `repair_job_sheets_brand_id_index` (`brand_id`),
-  ADD KEY `repair_job_sheets_device_id_index` (`device_id`),
-  ADD KEY `repair_job_sheets_device_model_id_index` (`device_model_id`),
-  ADD KEY `repair_job_sheets_status_id_index` (`status_id`),
-  ADD KEY `repair_job_sheets_service_staff_index` (`service_staff`),
-  ADD KEY `repair_job_sheets_created_by_index` (`created_by`);
-
---
--- Indexes for table `repair_statuses`
---
-ALTER TABLE `repair_statuses`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `res_product_modifier_sets`
---
-ALTER TABLE `res_product_modifier_sets`
-  ADD KEY `res_product_modifier_sets_modifier_set_id_foreign` (`modifier_set_id`);
-
---
--- Indexes for table `res_tables`
---
-ALTER TABLE `res_tables`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `res_tables_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `roles`
---
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `roles_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `role_has_permissions`
---
-ALTER TABLE `role_has_permissions`
-  ADD PRIMARY KEY (`permission_id`,`role_id`),
-  ADD KEY `role_has_permissions_role_id_foreign` (`role_id`);
-
---
--- Indexes for table `selling_price_groups`
---
-ALTER TABLE `selling_price_groups`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `selling_price_groups_business_id_foreign` (`business_id`);
-
---
--- Indexes for table `sessions`
---
-ALTER TABLE `sessions`
-  ADD UNIQUE KEY `sessions_id_unique` (`id`);
-
---
--- Indexes for table `sheet_spreadsheets`
---
-ALTER TABLE `sheet_spreadsheets`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sheet_spreadsheets_business_id_foreign` (`business_id`),
-  ADD KEY `sheet_spreadsheets_created_by_index` (`created_by`);
-
---
--- Indexes for table `sheet_spreadsheet_shares`
---
-ALTER TABLE `sheet_spreadsheet_shares`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sheet_spreadsheet_shares_sheet_spreadsheet_id_foreign` (`sheet_spreadsheet_id`),
-  ADD KEY `sheet_spreadsheet_shares_shared_with_index` (`shared_with`),
-  ADD KEY `sheet_spreadsheet_shares_shared_id_index` (`shared_id`);
-
---
--- Indexes for table `songs`
---
-ALTER TABLE `songs`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `stock_adjustment_lines`
---
-ALTER TABLE `stock_adjustment_lines`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `stock_adjustment_lines_product_id_foreign` (`product_id`),
-  ADD KEY `stock_adjustment_lines_variation_id_foreign` (`variation_id`),
-  ADD KEY `stock_adjustment_lines_transaction_id_index` (`transaction_id`),
-  ADD KEY `stock_adjustment_lines_lot_no_line_id_index` (`lot_no_line_id`);
-
---
--- Indexes for table `subscriptions`
---
-ALTER TABLE `subscriptions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `subscriptions_business_id_foreign` (`business_id`),
-  ADD KEY `subscriptions_package_id_index` (`package_id`),
-  ADD KEY `subscriptions_created_id_index` (`created_id`);
-
---
--- Indexes for table `superadmin_communicator_logs`
---
-ALTER TABLE `superadmin_communicator_logs`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `superadmin_frontend_pages`
---
-ALTER TABLE `superadmin_frontend_pages`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `system`
---
-ALTER TABLE `system`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `tax_rates`
---
-ALTER TABLE `tax_rates`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `tax_rates_business_id_foreign` (`business_id`),
-  ADD KEY `tax_rates_created_by_foreign` (`created_by`),
-  ADD KEY `tax_rates_woocommerce_tax_rate_id_index` (`woocommerce_tax_rate_id`),
-  ADD KEY `account_id` (`account_id`);
-
---
--- Indexes for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `transactions_tax_id_foreign` (`tax_id`),
-  ADD KEY `transactions_business_id_index` (`business_id`),
-  ADD KEY `transactions_type_index` (`type`),
-  ADD KEY `transactions_contact_id_index` (`contact_id`),
-  ADD KEY `transactions_transaction_date_index` (`transaction_date`),
-  ADD KEY `transactions_created_by_index` (`created_by`),
-  ADD KEY `transactions_location_id_index` (`location_id`),
-  ADD KEY `transactions_expense_for_foreign` (`expense_for`),
-  ADD KEY `transactions_expense_category_id_index` (`expense_category_id`),
-  ADD KEY `transactions_sub_type_index` (`sub_type`),
-  ADD KEY `transactions_return_parent_id_index` (`return_parent_id`),
-  ADD KEY `type` (`type`),
-  ADD KEY `transactions_status_index` (`status`),
-  ADD KEY `transactions_sub_status_index` (`sub_status`),
-  ADD KEY `transactions_res_table_id_index` (`res_table_id`),
-  ADD KEY `transactions_res_waiter_id_index` (`res_waiter_id`),
-  ADD KEY `transactions_res_order_status_index` (`res_order_status`),
-  ADD KEY `transactions_payment_status_index` (`payment_status`),
-  ADD KEY `transactions_discount_type_index` (`discount_type`),
-  ADD KEY `transactions_commission_agent_index` (`commission_agent`),
-  ADD KEY `transactions_transfer_parent_id_index` (`transfer_parent_id`),
-  ADD KEY `transactions_types_of_service_id_index` (`types_of_service_id`),
-  ADD KEY `transactions_packing_charge_type_index` (`packing_charge_type`),
-  ADD KEY `transactions_recur_parent_id_index` (`recur_parent_id`),
-  ADD KEY `transactions_selling_price_group_id_index` (`selling_price_group_id`),
-  ADD KEY `transactions_delivery_date_index` (`delivery_date`),
-  ADD KEY `transactions_mfg_parent_production_purchase_id_index` (`mfg_parent_production_purchase_id`),
-  ADD KEY `transactions_repair_model_id_index` (`repair_model_id`),
-  ADD KEY `transactions_pjt_project_id_foreign` (`pjt_project_id`),
-  ADD KEY `transactions_repair_warranty_id_index` (`repair_warranty_id`),
-  ADD KEY `transactions_repair_brand_id_index` (`repair_brand_id`),
-  ADD KEY `transactions_repair_status_id_index` (`repair_status_id`),
-  ADD KEY `transactions_repair_device_id_index` (`repair_device_id`),
-  ADD KEY `transactions_repair_job_sheet_id_index` (`repair_job_sheet_id`),
-  ADD KEY `transactions_woocommerce_order_id_index` (`woocommerce_order_id`),
-  ADD KEY `global_currenc_id` (`global_currenc_id`);
-
---
--- Indexes for table `transaction_payments`
---
-ALTER TABLE `transaction_payments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `transaction_payments_transaction_id_foreign` (`transaction_id`),
-  ADD KEY `transaction_payments_created_by_index` (`created_by`),
-  ADD KEY `transaction_payments_parent_id_index` (`parent_id`),
-  ADD KEY `transaction_payments_payment_type_index` (`payment_type`);
-
---
--- Indexes for table `transaction_sell_lines`
---
-ALTER TABLE `transaction_sell_lines`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `transaction_sell_lines_transaction_id_foreign` (`transaction_id`),
-  ADD KEY `transaction_sell_lines_product_id_foreign` (`product_id`),
-  ADD KEY `transaction_sell_lines_variation_id_foreign` (`variation_id`),
-  ADD KEY `transaction_sell_lines_tax_id_foreign` (`tax_id`),
-  ADD KEY `transaction_sell_lines_children_type_index` (`children_type`),
-  ADD KEY `transaction_sell_lines_parent_sell_line_id_index` (`parent_sell_line_id`),
-  ADD KEY `transaction_sell_lines_line_discount_type_index` (`line_discount_type`),
-  ADD KEY `transaction_sell_lines_discount_id_index` (`discount_id`),
-  ADD KEY `transaction_sell_lines_lot_no_line_id_index` (`lot_no_line_id`),
-  ADD KEY `transaction_sell_lines_sub_unit_id_index` (`sub_unit_id`);
-
---
--- Indexes for table `transaction_sell_lines_purchase_lines`
---
-ALTER TABLE `transaction_sell_lines_purchase_lines`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sell_line_id` (`sell_line_id`),
-  ADD KEY `stock_adjustment_line_id` (`stock_adjustment_line_id`),
-  ADD KEY `purchase_line_id` (`purchase_line_id`);
-
---
--- Indexes for table `types_of_services`
---
-ALTER TABLE `types_of_services`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `types_of_services_business_id_index` (`business_id`);
-
---
--- Indexes for table `units`
---
-ALTER TABLE `units`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `units_business_id_foreign` (`business_id`),
-  ADD KEY `units_created_by_foreign` (`created_by`),
-  ADD KEY `units_base_unit_id_index` (`base_unit_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_username_unique` (`username`),
-  ADD KEY `users_business_id_foreign` (`business_id`),
-  ADD KEY `users_user_type_index` (`user_type`),
-  ADD KEY `users_crm_contact_id_foreign` (`crm_contact_id`),
-  ADD KEY `users_crm_contact_id_index` (`crm_contact_id`),
-  ADD KEY `users_essentials_department_id_index` (`essentials_department_id`),
-  ADD KEY `users_essentials_designation_id_index` (`essentials_designation_id`);
-
---
--- Indexes for table `user_contact_access`
---
-ALTER TABLE `user_contact_access`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_contact_access_user_id_index` (`user_id`),
-  ADD KEY `user_contact_access_contact_id_index` (`contact_id`);
-
---
--- Indexes for table `variations`
---
-ALTER TABLE `variations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variations_product_id_foreign` (`product_id`),
-  ADD KEY `variations_product_variation_id_foreign` (`product_variation_id`),
-  ADD KEY `variations_name_index` (`name`),
-  ADD KEY `variations_sub_sku_index` (`sub_sku`),
-  ADD KEY `variations_variation_value_id_index` (`variation_value_id`),
-  ADD KEY `variations_woocommerce_variation_id_index` (`woocommerce_variation_id`);
-
---
--- Indexes for table `variation_group_prices`
---
-ALTER TABLE `variation_group_prices`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variation_group_prices_variation_id_foreign` (`variation_id`),
-  ADD KEY `variation_group_prices_price_group_id_foreign` (`price_group_id`);
-
---
--- Indexes for table `variation_location_details`
---
-ALTER TABLE `variation_location_details`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variation_location_details_location_id_foreign` (`location_id`),
-  ADD KEY `variation_location_details_product_id_index` (`product_id`),
-  ADD KEY `variation_location_details_product_variation_id_index` (`product_variation_id`),
-  ADD KEY `variation_location_details_variation_id_index` (`variation_id`);
-
---
--- Indexes for table `variation_templates`
---
-ALTER TABLE `variation_templates`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variation_templates_business_id_foreign` (`business_id`),
-  ADD KEY `variation_templates_woocommerce_attr_id_index` (`woocommerce_attr_id`);
-
---
--- Indexes for table `variation_value_templates`
---
-ALTER TABLE `variation_value_templates`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `variation_value_templates_name_index` (`name`),
-  ADD KEY `variation_value_templates_variation_template_id_index` (`variation_template_id`);
-
---
--- Indexes for table `warranties`
---
-ALTER TABLE `warranties`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `warranties_business_id_index` (`business_id`),
-  ADD KEY `warranties_duration_type_index` (`duration_type`);
-
---
--- Indexes for table `woocommerce_sync_logs`
---
-ALTER TABLE `woocommerce_sync_logs`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `accounting_accounts`
---
-ALTER TABLE `accounting_accounts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `accounting_accounts_transactions`
---
-ALTER TABLE `accounting_accounts_transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
-
---
--- AUTO_INCREMENT for table `accounting_account_types`
---
-ALTER TABLE `accounting_account_types`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `accounting_acc_trans_mappings`
---
-ALTER TABLE `accounting_acc_trans_mappings`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- AUTO_INCREMENT for table `accounting_budgets`
---
-ALTER TABLE `accounting_budgets`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `accounts`
---
-ALTER TABLE `accounts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `account_categories`
---
-ALTER TABLE `account_categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `account_transactions`
---
-ALTER TABLE `account_transactions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `account_types`
---
-ALTER TABLE `account_types`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `activity_log`
---
-ALTER TABLE `activity_log`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT for table `assets`
---
-ALTER TABLE `assets`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `asset_maintenances`
---
-ALTER TABLE `asset_maintenances`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `asset_transactions`
---
-ALTER TABLE `asset_transactions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `asset_warranties`
---
-ALTER TABLE `asset_warranties`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `barcodes`
---
-ALTER TABLE `barcodes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `bookings`
---
-ALTER TABLE `bookings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `brands`
---
-ALTER TABLE `brands`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `business`
---
-ALTER TABLE `business`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `business_locations`
---
-ALTER TABLE `business_locations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `button_categories`
---
-ALTER TABLE `button_categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
-
---
--- AUTO_INCREMENT for table `cash_denominations`
---
-ALTER TABLE `cash_denominations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `cash_registers`
---
-ALTER TABLE `cash_registers`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `cash_register_transactions`
---
-ALTER TABLE `cash_register_transactions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `contacts`
---
-ALTER TABLE `contacts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT for table `crm_call_logs`
---
-ALTER TABLE `crm_call_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_campaigns`
---
-ALTER TABLE `crm_campaigns`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_contact_person_commissions`
---
-ALTER TABLE `crm_contact_person_commissions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_lead_users`
---
-ALTER TABLE `crm_lead_users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_marketplaces`
---
-ALTER TABLE `crm_marketplaces`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_proposals`
---
-ALTER TABLE `crm_proposals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_proposal_templates`
---
-ALTER TABLE `crm_proposal_templates`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_schedules`
---
-ALTER TABLE `crm_schedules`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_schedule_logs`
---
-ALTER TABLE `crm_schedule_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crm_schedule_users`
---
-ALTER TABLE `crm_schedule_users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `currencies`
---
-ALTER TABLE `currencies`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=142;
-
---
--- AUTO_INCREMENT for table `customer_groups`
---
-ALTER TABLE `customer_groups`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `dashboard_configurations`
---
-ALTER TABLE `dashboard_configurations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `discounts`
---
-ALTER TABLE `discounts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `document_and_notes`
---
-ALTER TABLE `document_and_notes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_allowances_and_deductions`
---
-ALTER TABLE `essentials_allowances_and_deductions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_attendances`
---
-ALTER TABLE `essentials_attendances`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_documents`
---
-ALTER TABLE `essentials_documents`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_document_shares`
---
-ALTER TABLE `essentials_document_shares`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_holidays`
---
-ALTER TABLE `essentials_holidays`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_kb`
---
-ALTER TABLE `essentials_kb`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_kb_users`
---
-ALTER TABLE `essentials_kb_users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_leaves`
---
-ALTER TABLE `essentials_leaves`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_leave_types`
---
-ALTER TABLE `essentials_leave_types`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_messages`
---
-ALTER TABLE `essentials_messages`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_payroll_groups`
---
-ALTER TABLE `essentials_payroll_groups`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_reminders`
---
-ALTER TABLE `essentials_reminders`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_shifts`
---
-ALTER TABLE `essentials_shifts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_todo_comments`
---
-ALTER TABLE `essentials_todo_comments`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_to_dos`
---
-ALTER TABLE `essentials_to_dos`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_user_sales_targets`
---
-ALTER TABLE `essentials_user_sales_targets`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `essentials_user_shifts`
---
-ALTER TABLE `essentials_user_shifts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `expense_categories`
---
-ALTER TABLE `expense_categories`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `financial_statements`
---
-ALTER TABLE `financial_statements`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `global_currencies`
---
-ALTER TABLE `global_currencies`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `invoice_layouts`
---
-ALTER TABLE `invoice_layouts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `invoice_schemes`
---
-ALTER TABLE `invoice_schemes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `kitchens`
---
-ALTER TABLE `kitchens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `line_details`
---
-ALTER TABLE `line_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT for table `main_accounts`
---
-ALTER TABLE `main_accounts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
-
---
--- AUTO_INCREMENT for table `media`
---
-ALTER TABLE `media`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `mfg_ingredient_groups`
---
-ALTER TABLE `mfg_ingredient_groups`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `mfg_recipes`
---
-ALTER TABLE `mfg_recipes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `mfg_recipe_ingredients`
---
-ALTER TABLE `mfg_recipe_ingredients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=453;
-
---
--- AUTO_INCREMENT for table `notification_templates`
---
-ALTER TABLE `notification_templates`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `oauth_clients`
---
-ALTER TABLE `oauth_clients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `oauth_personal_access_clients`
---
-ALTER TABLE `oauth_personal_access_clients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `order_complete`
---
-ALTER TABLE `order_complete`
-  MODIFY `id` bigint(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `order_status`
---
-ALTER TABLE `order_status`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `packages`
---
-ALTER TABLE `packages`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `permissions`
---
-ALTER TABLE `permissions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
-
---
--- AUTO_INCREMENT for table `pjt_invoice_lines`
---
-ALTER TABLE `pjt_invoice_lines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_projects`
---
-ALTER TABLE `pjt_projects`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_project_members`
---
-ALTER TABLE `pjt_project_members`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_project_tasks`
---
-ALTER TABLE `pjt_project_tasks`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_project_task_comments`
---
-ALTER TABLE `pjt_project_task_comments`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_project_task_members`
---
-ALTER TABLE `pjt_project_task_members`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `pjt_project_time_logs`
---
-ALTER TABLE `pjt_project_time_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `printers`
---
-ALTER TABLE `printers`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `products`
---
-ALTER TABLE `products`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `product_racks`
---
-ALTER TABLE `product_racks`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `product_variations`
---
-ALTER TABLE `product_variations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `purchase_lines`
---
-ALTER TABLE `purchase_lines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
-
---
--- AUTO_INCREMENT for table `reference_counts`
---
-ALTER TABLE `reference_counts`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
-
---
--- AUTO_INCREMENT for table `repair_device_models`
---
-ALTER TABLE `repair_device_models`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `repair_job_sheets`
---
-ALTER TABLE `repair_job_sheets`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `repair_statuses`
---
-ALTER TABLE `repair_statuses`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `res_tables`
---
-ALTER TABLE `res_tables`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `roles`
---
-ALTER TABLE `roles`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `selling_price_groups`
---
-ALTER TABLE `selling_price_groups`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `sheet_spreadsheets`
---
-ALTER TABLE `sheet_spreadsheets`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `sheet_spreadsheet_shares`
---
-ALTER TABLE `sheet_spreadsheet_shares`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `songs`
---
-ALTER TABLE `songs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `stock_adjustment_lines`
---
-ALTER TABLE `stock_adjustment_lines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `subscriptions`
---
-ALTER TABLE `subscriptions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `superadmin_communicator_logs`
---
-ALTER TABLE `superadmin_communicator_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `superadmin_frontend_pages`
---
-ALTER TABLE `superadmin_frontend_pages`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `system`
---
-ALTER TABLE `system`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
-
---
--- AUTO_INCREMENT for table `tax_rates`
---
-ALTER TABLE `tax_rates`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT for table `transactions`
---
-ALTER TABLE `transactions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `transaction_payments`
---
-ALTER TABLE `transaction_payments`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `transaction_sell_lines`
---
-ALTER TABLE `transaction_sell_lines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `transaction_sell_lines_purchase_lines`
---
-ALTER TABLE `transaction_sell_lines_purchase_lines`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `types_of_services`
---
-ALTER TABLE `types_of_services`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `units`
---
-ALTER TABLE `units`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `user_contact_access`
---
-ALTER TABLE `user_contact_access`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `variations`
---
-ALTER TABLE `variations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `variation_group_prices`
---
-ALTER TABLE `variation_group_prices`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `variation_location_details`
---
-ALTER TABLE `variation_location_details`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `variation_templates`
---
-ALTER TABLE `variation_templates`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `variation_value_templates`
---
-ALTER TABLE `variation_value_templates`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `warranties`
---
-ALTER TABLE `warranties`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `woocommerce_sync_logs`
---
-ALTER TABLE `woocommerce_sync_logs`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
